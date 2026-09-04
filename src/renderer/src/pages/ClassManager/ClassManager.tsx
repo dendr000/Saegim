@@ -55,8 +55,8 @@ function ClassManager({ onBack }: ClassManagerProps) {
 
   if (selected) {
     return (
-      <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-        <button type="button" onClick={() => setSelectedId(null)}>
+      <div className="page">
+        <button type="button" className="page-back" onClick={() => setSelectedId(null)}>
           ← 학급 목록
         </button>
         <h1>{selected.name}</h1>
@@ -71,25 +71,25 @@ function ClassManager({ onBack }: ClassManagerProps) {
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <button type="button" onClick={onBack}>
+    <div className="page">
+      <button type="button" className="page-back" onClick={onBack}>
         ← 홈
       </button>
       <h1>학급 관리</h1>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <input
           placeholder="학급 이름 (예: 1학년 3반)"
           value={newClassName}
           onChange={(event) => setNewClassName(event.target.value)}
-        />{' '}
-        <button type="button" onClick={handleCreateClass}>
+        />
+        <button type="button" className="button-primary" onClick={handleCreateClass}>
           학급 추가
         </button>
       </div>
 
       {loading ? (
-        <p>불러오는 중...</p>
+        <p className="muted-text">불러오는 중...</p>
       ) : (
         <ul>
           {classes.map((schoolClass) => (
@@ -98,7 +98,7 @@ function ClassManager({ onBack }: ClassManagerProps) {
                 {schoolClass.name}
               </button>{' '}
               ({schoolClass.students.length}명){' '}
-              <button type="button" onClick={() => handleDeleteClass(schoolClass.id)}>
+              <button type="button" className="button-danger" onClick={() => handleDeleteClass(schoolClass.id)}>
                 삭제
               </button>
             </li>

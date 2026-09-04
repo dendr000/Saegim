@@ -8,7 +8,8 @@ import type { TerritoryConfig } from '../../games/territory/types';
 import BettingSetup from '../../games/betting/BettingSetup';
 import BettingPlay from '../../games/betting/BettingPlay';
 import type { BettingConfig } from '../../games/betting/types';
-import type { ParticipantScore } from '../../games/_shared/types';
+import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
+import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
 
 type GameSelectProps = {
@@ -28,6 +29,24 @@ type FlowState =
 function GameSelect({ onBack }: GameSelectProps) {
   const [flow, setFlow] = useState<FlowState>({ step: 'select' });
 
+  // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
+  async function handleFinish(
+    gameMode: GameMode,
+    classId: string,
+    className: string,
+    result: GameFinishPayload
+  ): Promise<void> {
+    await window.sessions.save({
+      classId,
+      className,
+      gameMode,
+      playedAt: Date.now(),
+      finalScores: result.scores.map((score) => ({ participantId: score.id, label: score.label, score: score.score })),
+      answers: result.answers
+    });
+    setFlow({ step: 'result', scores: result.scores });
+  }
+
   if (flow.step === 'timeAttackSetup') {
     return (
       <TimeAttackSetup
@@ -38,7 +57,12 @@ function GameSelect({ onBack }: GameSelectProps) {
   }
 
   if (flow.step === 'timeAttackPlaying') {
-    return <TimeAttackPlay config={flow.config} onFinish={(scores) => setFlow({ step: 'result', scores })} />;
+    return (
+      <TimeAttackPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('timeAttack', flow.config.classId, flow.config.className, result)}
+      />
+    );
   }
 
   if (flow.step === 'territorySetup') {
@@ -51,7 +75,12 @@ function GameSelect({ onBack }: GameSelectProps) {
   }
 
   if (flow.step === 'territoryPlaying') {
-    return <TerritoryPlay config={flow.config} onFinish={(scores) => setFlow({ step: 'result', scores })} />;
+    return (
+      <TerritoryPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('territory', flow.config.classId, flow.config.className, result)}
+      />
+    );
   }
 
   if (flow.step === 'bettingSetup') {
@@ -64,7 +93,12 @@ function GameSelect({ onBack }: GameSelectProps) {
   }
 
   if (flow.step === 'bettingPlaying') {
-    return <BettingPlay config={flow.config} onFinish={(scores) => setFlow({ step: 'result', scores })} />;
+    return (
+      <BettingPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('betting', flow.config.classId, flow.config.className, result)}
+      />
+    );
   }
 
   if (flow.step === 'result') {
@@ -72,32 +106,22 @@ function GameSelect({ onBack }: GameSelectProps) {
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <button type="button" onClick={onBack}>
+    <div className="page">
+      <button type="button" className="page-back" onClick={onBack}>
         ← 홈
       </button>
       <h1>게임 선택</h1>
-      <button
-        type="button"
-        onClick={() => setFlow({ step: 'timeAttackSetup' })}
-        style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
-      >
-        타임어택 콤보
-      </button>{' '}
-      <button
-        type="button"
-        onClick={() => setFlow({ step: 'territorySetup' })}
-        style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
-      >
-        땅따먹기
-      </button>{' '}
-      <button
-        type="button"
-        onClick={() => setFlow({ step: 'bettingSetup' })}
-        style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
-      >
-        베팅형
-      </button>
+      <div className="button-row">
+        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'timeAttackSetup' })}>
+          타임어택 콤보
+        </button>
+        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'territorySetup' })}>
+          땅따먹기
+        </button>
+        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'bettingSetup' })}>
+          베팅형
+        </button>
+      </div>
     </div>
   );
 }

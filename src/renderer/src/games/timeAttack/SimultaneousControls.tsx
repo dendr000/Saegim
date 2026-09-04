@@ -27,10 +27,10 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
 
   return (
     <div>
-      <p style={{ fontSize: '1.5rem' }}>{question.payload.question}</p>
+      <p className="stage-question">{question.payload.question}</p>
 
-      <div style={{ marginBottom: '0.5rem' }}>
-        <p>
+      <div className="stage-panel">
+        <p className="stage-text">
           답한 학생:{' '}
           {selectedParticipant ? <strong>{selectedParticipant.label}</strong> : <em>선택 안 됨</em>}
         </p>
@@ -41,14 +41,23 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
           onChange={(event) => setSearchText(event.target.value)}
         />
         {trimmedSearch && (
-          <div style={{ border: '1px solid #ccc', maxHeight: '150px', overflowY: 'auto', marginTop: '0.25rem' }}>
-            {searchResults.length === 0 && <p style={{ padding: '0.25rem 0.5rem' }}>일치하는 학생 없음</p>}
+          <div
+            style={{
+              border: '1px solid var(--stage-border)',
+              maxHeight: '180px',
+              overflowY: 'auto',
+              marginTop: '0.5rem',
+              borderRadius: '0.5rem'
+            }}
+          >
+            {searchResults.length === 0 && <p className="stage-text" style={{ padding: '0.25rem 0.75rem' }}>일치하는 학생 없음</p>}
             {searchResults.map((participant) => (
               <button
                 key={participant.id}
                 type="button"
+                className="stage-button"
                 onClick={() => selectParticipant(participant.id)}
-                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '0.25rem 0.5rem' }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', margin: 0, borderRadius: 0 }}
               >
                 {participant.label}
               </button>
@@ -63,9 +72,9 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
             <button
               key={index}
               type="button"
+              className="stage-button"
               disabled={!selectedParticipantId}
               onClick={() => onSubmit(selectedParticipantId, { choiceIndex: index })}
-              style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
             >
               {choice}
             </button>
@@ -73,39 +82,39 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
         </div>
       ) : question.type === 'shortAnswer' ? (
         <div>
-          <p>
+          <p className="stage-text">
             정답: <strong>{question.payload.answer}</strong>
             {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
               ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
               : ''}
           </p>
-          <p>학생이 말한 답이 위 정답과 같나요?</p>
+          <p className="stage-text">학생이 말한 답이 위 정답과 같나요?</p>
           <button
             type="button"
+            className="stage-button stage-button-primary"
             disabled={!selectedParticipantId}
             onClick={() => onSubmit(selectedParticipantId, { judgedCorrect: true })}
-            style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
           >
             정답 처리
           </button>
           <button
             type="button"
+            className="stage-button"
             disabled={!selectedParticipantId}
             onClick={() => onSubmit(selectedParticipantId, { judgedCorrect: false })}
-            style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
           >
             오답 처리
           </button>
         </div>
       ) : (
-        <p>이 유형은 아직 타임어택에서 지원하지 않습니다.</p>
+        <p className="stage-text">이 유형은 아직 타임어택에서 지원하지 않습니다.</p>
       )}
 
-      <div style={{ marginTop: '0.5rem' }}>
-        <button type="button" onClick={onSkip}>
+      <div style={{ marginTop: '1rem' }}>
+        <button type="button" className="stage-button stage-button-small" onClick={onSkip}>
           다음 문제 (스킵)
         </button>{' '}
-        <button type="button" onClick={onEndSession}>
+        <button type="button" className="stage-button stage-button-small" onClick={onEndSession}>
           게임 종료
         </button>
       </div>

@@ -1,4 +1,5 @@
 import type { Question } from '../../../../shared/types/question';
+import type { SessionAnswerRecord } from '../_shared/types';
 
 export type TimeAttackMode = 'hotSeat' | 'simultaneous';
 
@@ -9,6 +10,8 @@ export type TimeAttackConfig = {
   durationSeconds: number;
   participants: TimeAttackParticipantInput[];
   questions: Question[];
+  classId: string;
+  className: string;
 };
 
 export type ParticipantRuntimeState = {
@@ -38,4 +41,6 @@ export type TimeAttackState = {
   activeParticipantId: string | null;
   status: 'inProgress' | 'finished';
   lastResult: TimeAttackResult | null;
+  // 세션 기록·오답 통계용으로 이번 게임에서 나온 모든 판정을 쌓아둔다.
+  answerHistory: SessionAnswerRecord[];
 };

@@ -27,8 +27,8 @@ function isJudged(selectedValue: unknown, judgedCorrect: boolean): boolean {
 
 function TeamAnswerRow({ team, bet, question, selectedValue, onSelect }: TeamAnswerRowProps) {
   return (
-    <div style={{ border: '1px solid #ddd', padding: '0.5rem', marginBottom: '0.5rem' }}>
-      <strong>
+    <div className="stage-panel">
+      <strong className="stage-text">
         {team.label} (배팅 {bet}점)
       </strong>
 
@@ -38,12 +38,11 @@ function TeamAnswerRow({ team, bet, question, selectedValue, onSelect }: TeamAns
             <button
               key={index}
               type="button"
+              className="stage-button"
               onClick={() => onSelect({ choiceIndex: index })}
               style={{
-                margin: '0.25rem',
-                padding: '0.4rem 0.8rem',
                 fontWeight: isSameChoice(selectedValue, index) ? 'bold' : 'normal',
-                outline: isSameChoice(selectedValue, index) ? '2px solid #4285f4' : undefined
+                outline: isSameChoice(selectedValue, index) ? '3px solid var(--stage-primary)' : undefined
               }}
             >
               {choice}
@@ -54,31 +53,29 @@ function TeamAnswerRow({ team, bet, question, selectedValue, onSelect }: TeamAns
         <div>
           <button
             type="button"
+            className="stage-button"
             onClick={() => onSelect({ judgedCorrect: true })}
             style={{
-              margin: '0.25rem',
-              padding: '0.4rem 0.8rem',
               fontWeight: isJudged(selectedValue, true) ? 'bold' : 'normal',
-              outline: isJudged(selectedValue, true) ? '2px solid #34a853' : undefined
+              outline: isJudged(selectedValue, true) ? '3px solid var(--color-correct)' : undefined
             }}
           >
             정답 처리
           </button>
           <button
             type="button"
+            className="stage-button"
             onClick={() => onSelect({ judgedCorrect: false })}
             style={{
-              margin: '0.25rem',
-              padding: '0.4rem 0.8rem',
               fontWeight: isJudged(selectedValue, false) ? 'bold' : 'normal',
-              outline: isJudged(selectedValue, false) ? '2px solid #ea4335' : undefined
+              outline: isJudged(selectedValue, false) ? '3px solid var(--color-wrong)' : undefined
             }}
           >
             오답 처리
           </button>
         </div>
       ) : (
-        <p>이 유형은 아직 지원하지 않습니다.</p>
+        <p className="stage-text">이 유형은 아직 지원하지 않습니다.</p>
       )}
     </div>
   );

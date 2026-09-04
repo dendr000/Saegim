@@ -54,17 +54,24 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
 
     if (participants.length === 0 || eligibleQuestions.length === 0) return;
 
-    onStart({ mode, durationSeconds, participants, questions: eligibleQuestions });
+    onStart({
+      mode,
+      durationSeconds,
+      participants,
+      questions: eligibleQuestions,
+      classId: selectedClass.id,
+      className: selectedClass.name
+    });
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <button type="button" onClick={onCancel}>
+    <div className="page">
+      <button type="button" className="page-back" onClick={onCancel}>
         ← 뒤로
       </button>
       <h1>타임어택 콤보 설정</h1>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <label>
           학급:{' '}
           <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)}>
@@ -79,10 +86,10 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
       </div>
 
       {selectedClass && (
-        <div style={{ marginBottom: '1rem' }}>
-          <p>참가 학생 ({selectedStudentIds.size}명 선택됨):</p>
+        <div className="field-row">
+          <p style={{ width: '100%', margin: 0 }}>참가 학생 ({selectedStudentIds.size}명 선택됨):</p>
           {selectedClass.students.map((student) => (
-            <label key={student.id} style={{ marginRight: '1rem' }}>
+            <label key={student.id}>
               <input
                 type="checkbox"
                 checked={selectedStudentIds.has(student.id)}
@@ -94,18 +101,18 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
         </div>
       )}
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <label>
           <input type="radio" checked={mode === 'hotSeat'} onChange={() => setMode('hotSeat')} /> 핫시트(한 명씩
           순서대로)
-        </label>{' '}
+        </label>
         <label>
           <input type="radio" checked={mode === 'simultaneous'} onChange={() => setMode('simultaneous')} /> 동시
           진행(전체, 맞힌 사람이 점수)
         </label>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <label>
           제한시간(초, {mode === 'hotSeat' ? '학생별' : '전체'}):{' '}
           <input
@@ -118,14 +125,15 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
         </label>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />{' '}
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />{' '}
-        <span>사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)</span>
+      <div className="field-row">
+        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
+        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
+        <span className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)</span>
       </div>
 
       <button
         type="button"
+        className="button-primary"
         onClick={handleStart}
         disabled={!selectedClass || selectedStudentIds.size === 0 || eligibleQuestions.length === 0}
       >

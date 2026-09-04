@@ -9,8 +9,6 @@ type ClassRosterProps = {
   onChange: (students: Student[]) => void;
 };
 
-const cellStyle = { border: '1px solid #ddd', padding: '0.25rem 0.5rem', textAlign: 'left' as const };
-
 function ClassRoster({ students, teams, onChange }: ClassRosterProps) {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
@@ -53,17 +51,17 @@ function ClassRoster({ students, teams, onChange }: ClassRosterProps) {
     <div style={{ marginBottom: '1.5rem' }}>
       <h3>학생 명단 ({students.length}명)</h3>
 
-      <div style={{ marginBottom: '0.5rem' }}>
+      <div className="field-row">
         <input
           placeholder="번호"
           value={number}
           onChange={(event) => setNumber(event.target.value)}
           style={{ width: '4rem' }}
-        />{' '}
-        <input placeholder="이름" value={name} onChange={(event) => setName(event.target.value)} />{' '}
-        <button type="button" onClick={handleAddOne}>
+        />
+        <input placeholder="이름" value={name} onChange={(event) => setName(event.target.value)} />
+        <button type="button" className="button-primary" onClick={handleAddOne}>
           학생 추가
-        </button>{' '}
+        </button>
         <button type="button" onClick={() => setShowPasteImport((value) => !value)}>
           명단 붙여넣기
         </button>
@@ -73,30 +71,32 @@ function ClassRoster({ students, teams, onChange }: ClassRosterProps) {
         <RosterPasteImport onImport={handlePasteImport} onClose={() => setShowPasteImport(false)} />
       )}
 
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th style={cellStyle}>번호</th>
-            <th style={cellStyle}>이름</th>
-            <th style={cellStyle}>소속팀</th>
-            <th style={cellStyle}>작업</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((student) => (
-            <tr key={student.id}>
-              <td style={cellStyle}>{student.number ?? '-'}</td>
-              <td style={cellStyle}>{student.name}</td>
-              <td style={cellStyle}>{teamNameOf(student.id)}</td>
-              <td style={cellStyle}>
-                <button type="button" onClick={() => handleRemove(student.id)}>
-                  삭제
-                </button>
-              </td>
+      <div className="table-scroll">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>번호</th>
+              <th>이름</th>
+              <th>소속팀</th>
+              <th>작업</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sorted.map((student) => (
+              <tr key={student.id}>
+                <td>{student.number ?? '-'}</td>
+                <td>{student.name}</td>
+                <td>{teamNameOf(student.id)}</td>
+                <td>
+                  <button type="button" className="button-danger" onClick={() => handleRemove(student.id)}>
+                    삭제
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

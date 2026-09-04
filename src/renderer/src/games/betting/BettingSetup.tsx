@@ -32,26 +32,28 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
     return true;
   });
 
-  const canStart = teams.length >= 2 && totalRounds >= 1 && eligibleQuestions.length > 0;
+  const canStart = Boolean(selectedClass) && teams.length >= 2 && totalRounds >= 1 && eligibleQuestions.length > 0;
 
   function handleStart(): void {
-    if (!canStart) return;
+    if (!canStart || !selectedClass) return;
     onStart({
       teams: teams.map((team) => ({ id: team.id, label: team.name })),
       totalRounds,
       startingScore,
-      questions: eligibleQuestions
+      questions: eligibleQuestions,
+      classId: selectedClass.id,
+      className: selectedClass.name
     });
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <button type="button" onClick={onCancel}>
+    <div className="page">
+      <button type="button" className="page-back" onClick={onCancel}>
         ← 뒤로
       </button>
       <h1>베팅형 설정</h1>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <label>
           학급:{' '}
           <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)}>
@@ -66,13 +68,13 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
       </div>
 
       {selectedClass && teams.length < 2 && (
-        <p style={{ color: 'crimson' }}>
+        <p className="error-text">
           이 학급에는 팀이 {teams.length}개뿐입니다. 학급 관리에서 팀을 2개 이상 만들어주세요.
         </p>
       )}
       {selectedClass && teams.length >= 2 && <p>참가 팀: {teams.map((team) => team.name).join(', ')}</p>}
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="field-row">
         <label>
           라운드 수:{' '}
           <input
@@ -82,7 +84,7 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
             onChange={(event) => setTotalRounds(Number(event.target.value))}
             style={{ width: '4rem' }}
           />
-        </label>{' '}
+        </label>
         <label>
           시작 점수:{' '}
           <input
@@ -95,10 +97,10 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
         </label>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />{' '}
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />{' '}
-        <span>
+      <div className="field-row">
+        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
+        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
+        <span className="muted-text">
           사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)
           {eligibleQuestions.length > 0 && eligibleQuestions.length < totalRounds
             ? ` — 라운드 수(${totalRounds})보다 적어 일부 문제가 반복됩니다`
@@ -106,7 +108,7 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
         </span>
       </div>
 
-      <button type="button" onClick={handleStart} disabled={!canStart}>
+      <button type="button" className="button-primary" onClick={handleStart} disabled={!canStart}>
         시작
       </button>
     </div>

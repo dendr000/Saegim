@@ -10,53 +10,40 @@ type HotSeatControlsProps = {
 function HotSeatControls({ question, activeParticipantLabel, onSubmit, onEndTurn }: HotSeatControlsProps) {
   return (
     <div>
-      <h3>
+      <h3 className="stage-subtitle">
         지금 차례: {activeParticipantLabel}{' '}
-        <button type="button" onClick={onEndTurn} style={{ fontSize: '0.9rem' }}>
+        <button type="button" className="stage-button stage-button-small" onClick={onEndTurn}>
           다음 학생으로 →
         </button>
       </h3>
-      <p style={{ fontSize: '1.5rem' }}>{question.payload.question}</p>
+      <p className="stage-question">{question.payload.question}</p>
 
       {question.type === 'multipleChoice' ? (
         <div>
           {question.payload.choices.map((choice, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => onSubmit({ choiceIndex: index })}
-              style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
-            >
+            <button key={index} type="button" className="stage-button" onClick={() => onSubmit({ choiceIndex: index })}>
               {choice}
             </button>
           ))}
         </div>
       ) : question.type === 'shortAnswer' ? (
         <div>
-          <p>
+          <p className="stage-text">
             정답: <strong>{question.payload.answer}</strong>
             {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
               ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
               : ''}
           </p>
-          <p>학생이 말한 답이 위 정답과 같나요?</p>
-          <button
-            type="button"
-            onClick={() => onSubmit({ judgedCorrect: true })}
-            style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
-          >
+          <p className="stage-text">학생이 말한 답이 위 정답과 같나요?</p>
+          <button type="button" className="stage-button stage-button-primary" onClick={() => onSubmit({ judgedCorrect: true })}>
             정답 처리
           </button>
-          <button
-            type="button"
-            onClick={() => onSubmit({ judgedCorrect: false })}
-            style={{ margin: '0.25rem', padding: '0.5rem 1rem' }}
-          >
+          <button type="button" className="stage-button" onClick={() => onSubmit({ judgedCorrect: false })}>
             오답 처리
           </button>
         </div>
       ) : (
-        <p>이 유형은 아직 타임어택에서 지원하지 않습니다.</p>
+        <p className="stage-text">이 유형은 아직 타임어택에서 지원하지 않습니다.</p>
       )}
     </div>
   );

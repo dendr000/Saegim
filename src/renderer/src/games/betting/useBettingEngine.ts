@@ -1,14 +1,16 @@
 import { useReducer } from 'react';
 import type { Question } from '../../../../shared/types/question';
+import type { Answer } from '../_shared/types';
 import { gradeAnswer } from '../_shared/gradeAnswer';
 import type { BettingConfig, BettingState, RoundResult } from './types';
 
 type Action =
   | { type: 'SET_BET'; teamId: string; amount: number }
   | { type: 'LOCK_IN_BETS' }
-  | { type: 'SET_TEAM_ANSWER'; teamId: string; value: unknown }
+  | { type: 'SET_TEAM_ANSWER'; answer: Answer }
   | { type: 'SETTLE_ROUND' }
-  | { type: 'END_GAME_MANUALLY' };
+  | { type: 'END_GAME_MANUALLY' }
+  | { type: 'ADJUST_SCORE'; teamId: string; newScore: number };
 
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
@@ -38,7 +40,8 @@ function createInitialState(config: BettingConfig): BettingState {
     currentQuestion: null,
     answers: {},
     lastRoundResults: null,
-    status: 'inProgress'
+    status: 'inProgress',
+    answerHistory: []
   };
 }
 
@@ -66,7 +69,7 @@ function bettingReducer(state: BettingState, action: Action): BettingState {
 
     case 'SET_TEAM_ANSWER': {
       if (state.phase !== 'judging') return state;
-      return { ...state, answers: { ...state.answers, [action.teamId]: action.value } };
+      return { ...state, answers: { ...state.answers, [action.answer.participantId]: action.answer.value } };
     }
 
     case 'SETTLE_ROUND': {
@@ -74,6 +77,7 @@ function bettingReducer(state: BettingState, action: Action): BettingState {
       const question = state.currentQuestion;
 
       const results: RoundResult[] = [];
+      const newAnswerHistory = [...state.answerHistory];
       const teams = state.teams.map((team) => {
         const bet = state.bets[team.id] ?? 0;
         if (!(team.id in state.answers)) {
@@ -85,6 +89,7 @@ function bettingReducer(state: BettingState, action: Action): BettingState {
         const { correct } = gradeAnswer(question, state.answers[team.id]);
         const delta = correct ? bet : -bet;
         results.push({ teamId: team.id, bet, correct, delta });
+        newAnswerHistory.push({ questionId: question.id, participantId: team.id, correct });
         return { ...team, score: team.score + delta };
       });
 
@@ -100,12 +105,21 @@ function bettingReducer(state: BettingState, action: Action): BettingState {
         bets: createInitialBets(state.config),
         currentQuestion: null,
         answers: {},
-        status: finished ? 'finished' : 'inProgress'
+        status: finished ? 'finished' : 'inProgress',
+        answerHistory: newAnswerHistory
       };
     }
 
     case 'END_GAME_MANUALLY': {
       return { ...state, status: 'finished' };
+    }
+
+    case 'ADJUST_SCORE': {
+      // 교사 수동 개입: 판정 실수·점수 오류를 바로잡기 위해 점수를 직접 지정한다.
+      const teams = state.teams.map((team) =>
+        team.id === action.teamId ? { ...team, score: action.newScore } : team
+      );
+      return { ...state, teams };
     }
 
     default:
@@ -125,7 +139,7 @@ export function useBettingEngine(config: BettingConfig) {
   }
 
   function setTeamAnswer(teamId: string, value: unknown): void {
-    dispatch({ type: 'SET_TEAM_ANSWER', teamId, value });
+    dispatch({ type: 'SET_TEAM_ANSWER', answer: { participantId: teamId, value, submittedAt: Date.now() } });
   }
 
   function settleRound(): void {
@@ -136,5 +150,9 @@ export function useBettingEngine(config: BettingConfig) {
     dispatch({ type: 'END_GAME_MANUALLY' });
   }
 
-  return { state, setBet, lockInBets, setTeamAnswer, settleRound, endGame };
+  function adjustScore(teamId: string, newScore: number): void {
+    dispatch({ type: 'ADJUST_SCORE', teamId, newScore });
+  }
+
+  return { state, setBet, lockInBets, setTeamAnswer, settleRound, endGame, adjustScore };
 }

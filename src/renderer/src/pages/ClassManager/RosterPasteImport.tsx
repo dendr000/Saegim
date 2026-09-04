@@ -22,20 +22,20 @@ function RosterPasteImport({ onImport, onClose }: RosterPasteImportProps) {
   }
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+    <div className="panel">
       <h4>명단 붙여넣기</h4>
       <p>한 줄에 한 명씩, "번호,이름" 또는 이름만 붙여넣으세요.</p>
-      <pre style={{ background: '#f5f5f5', padding: '0.5rem' }}>{'1,김민준\n2,이서연\n박도윤'}</pre>
+      <pre className="code-block">{'1,김민준\n2,이서연\n박도윤'}</pre>
 
       <textarea value={text} onChange={(event) => setText(event.target.value)} rows={6} style={{ width: '100%' }} />
 
-      <div style={{ margin: '0.5rem 0' }}>
+      <div className="button-row" style={{ marginTop: '0.5rem' }}>
         <button type="button" onClick={handlePreview} disabled={!text.trim()}>
           미리보기
-        </button>{' '}
-        <button type="button" onClick={handleImport} disabled={preview.length === 0}>
+        </button>
+        <button type="button" className="button-primary" onClick={handleImport} disabled={preview.length === 0}>
           추가 ({preview.length}명)
-        </button>{' '}
+        </button>
         <button type="button" onClick={onClose}>
           닫기
         </button>

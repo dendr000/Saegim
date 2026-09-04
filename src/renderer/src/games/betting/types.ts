@@ -1,4 +1,5 @@
 import type { Question } from '../../../../shared/types/question';
+import type { SessionAnswerRecord } from '../_shared/types';
 
 export type BettingTeam = { id: string; label: string };
 
@@ -7,6 +8,8 @@ export type BettingConfig = {
   totalRounds: number;
   startingScore: number;
   questions: Question[];
+  classId: string;
+  className: string;
 };
 
 export type BettingTeamState = {
@@ -35,4 +38,6 @@ export type BettingState = {
   answers: Record<string, unknown>;
   lastRoundResults: RoundResult[] | null;
   status: 'inProgress' | 'finished';
+  // 세션 기록·오답 통계용으로 이번 게임에서 나온 모든 판정을 쌓아둔다.
+  answerHistory: SessionAnswerRecord[];
 };

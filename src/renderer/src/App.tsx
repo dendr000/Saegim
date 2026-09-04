@@ -3,8 +3,9 @@ import Home from './pages/Home/Home';
 import QuestionBank from './pages/QuestionBank/QuestionBank';
 import ClassManager from './pages/ClassManager/ClassManager';
 import GameSelect from './pages/GameSelect/GameSelect';
+import SessionHistory from './pages/SessionHistory/SessionHistory';
 
-type Page = 'home' | 'questionBank' | 'classManager' | 'gameSelect';
+type Page = 'home' | 'questionBank' | 'classManager' | 'gameSelect' | 'sessionHistory';
 
 function App() {
   const [page, setPage] = useState<Page>('home');
@@ -21,11 +22,16 @@ function App() {
     return <GameSelect onBack={() => setPage('home')} />;
   }
 
+  if (page === 'sessionHistory') {
+    return <SessionHistory onBack={() => setPage('home')} />;
+  }
+
   return (
     <Home
       onNavigateToQuestionBank={() => setPage('questionBank')}
       onNavigateToClassManager={() => setPage('classManager')}
       onNavigateToGameSelect={() => setPage('gameSelect')}
+      onNavigateToSessionHistory={() => setPage('sessionHistory')}
     />
   );
 }

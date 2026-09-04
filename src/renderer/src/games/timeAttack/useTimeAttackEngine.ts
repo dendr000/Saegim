@@ -10,7 +10,8 @@ type Action =
   | { type: 'SKIP_QUESTION' }
   | { type: 'TURN_TIME_EXPIRED' }
   | { type: 'SESSION_TIME_EXPIRED' }
-  | { type: 'END_ROUND_MANUALLY' };
+  | { type: 'END_ROUND_MANUALLY' }
+  | { type: 'ADJUST_SCORE'; participantId: string; newScore: number };
 
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
@@ -39,7 +40,8 @@ function createInitialState(config: TimeAttackConfig): TimeAttackState {
     turnIndex: 0,
     activeParticipantId: config.mode === 'hotSeat' ? (turnOrder[0] ?? null) : null,
     status: 'inProgress',
-    lastResult: null
+    lastResult: null,
+    answerHistory: []
   };
 }
 
@@ -89,25 +91,36 @@ function timeAttackReducer(state: TimeAttackState, action: Action): TimeAttackSt
       });
 
       const lastResult: TimeAttackResult = { participantId, correct, answerText };
+      const answerHistory = [
+        ...state.answerHistory,
+        { questionId: state.currentQuestion.id, participantId, correct }
+      ];
 
       // 핫시트: 정오답 관계없이 다음 문제. 동시 진행: 정답일 때만 다음 문제(오답이면 문제 유지).
       const shouldAdvance = state.config.mode === 'hotSeat' || correct;
       if (!shouldAdvance) {
-        return { ...state, participants, lastResult };
+        return { ...state, participants, lastResult, answerHistory };
       }
 
       const remaining = state.turnQuestionQueue.slice(1);
       if (remaining.length > 0) {
-        return { ...state, participants, turnQuestionQueue: remaining, currentQuestion: remaining[0], lastResult };
+        return {
+          ...state,
+          participants,
+          turnQuestionQueue: remaining,
+          currentQuestion: remaining[0],
+          lastResult,
+          answerHistory
+        };
       }
 
       // 이번 범위(핫시트: 이 학생의 턴 / 동시 진행: 이번 세션)의 문제를 이미 다 냈다.
       // 그대로 다시 섞어서 반복시키면 이미 아는 정답으로 무한히 점수를 쌓을 수 있어(악용 가능),
       // 여기서 범위를 끝낸다.
       if (state.config.mode === 'simultaneous') {
-        return { ...state, participants, status: 'finished', lastResult };
+        return { ...state, participants, status: 'finished', lastResult, answerHistory };
       }
-      return { ...state, participants, ...startNextTurnOrFinish(state), lastResult };
+      return { ...state, participants, ...startNextTurnOrFinish(state), lastResult, answerHistory };
     }
 
     case 'SKIP_QUESTION': {
@@ -132,6 +145,14 @@ function timeAttackReducer(state: TimeAttackState, action: Action): TimeAttackSt
 
     case 'SESSION_TIME_EXPIRED': {
       return { ...state, status: 'finished' };
+    }
+
+    case 'ADJUST_SCORE': {
+      // 교사 수동 개입: 판정 실수·점수 오류를 바로잡기 위해 점수를 직접 지정한다.
+      const participants = state.participants.map((participant) =>
+        participant.id === action.participantId ? { ...participant, score: action.newScore } : participant
+      );
+      return { ...state, participants };
     }
 
     default:
@@ -161,5 +182,9 @@ export function useTimeAttackEngine(config: TimeAttackConfig) {
     dispatch({ type: 'END_ROUND_MANUALLY' });
   }
 
-  return { state, remainingSeconds: timer.remainingSeconds, submitAnswer, skipQuestion, endRound };
+  function adjustScore(participantId: string, newScore: number): void {
+    dispatch({ type: 'ADJUST_SCORE', participantId, newScore });
+  }
+
+  return { state, remainingSeconds: timer.remainingSeconds, submitAnswer, skipQuestion, endRound, adjustScore };
 }

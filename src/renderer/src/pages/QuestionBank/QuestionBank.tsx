@@ -71,13 +71,13 @@ function QuestionBank({ onBack }: QuestionBankProps) {
   }
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <button type="button" onClick={onBack}>
+    <div className="page">
+      <button type="button" className="page-back" onClick={onBack}>
         ← 홈
       </button>
       <h1>문제은행</h1>
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+      <div className="field-row">
         <input placeholder="시대 검색" value={filterEra} onChange={(event) => setFilterEra(event.target.value)} />
         <input placeholder="단원 검색" value={filterUnit} onChange={(event) => setFilterUnit(event.target.value)} />
         <select value={filterType} onChange={(event) => setFilterType(event.target.value as SupportedQuestionType | '')}>
@@ -90,10 +90,10 @@ function QuestionBank({ onBack }: QuestionBankProps) {
         </select>
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <button type="button" onClick={() => setFormMode({ kind: 'create' })}>
+      <div className="button-row">
+        <button type="button" className="button-primary" onClick={() => setFormMode({ kind: 'create' })}>
           문항 추가
-        </button>{' '}
+        </button>
         <button type="button" onClick={() => setShowCsvImport((value) => !value)}>
           CSV로 가져오기
         </button>
@@ -112,52 +112,52 @@ function QuestionBank({ onBack }: QuestionBankProps) {
       )}
 
       {loading ? (
-        <p>불러오는 중...</p>
+        <p className="muted-text">불러오는 중...</p>
       ) : (
-        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-          <thead>
-            <tr>
-              <th style={cellStyle}>시대</th>
-              <th style={cellStyle}>단원</th>
-              <th style={cellStyle}>난이도</th>
-              <th style={cellStyle}>유형</th>
-              <th style={cellStyle}>질문</th>
-              <th style={cellStyle}>정답</th>
-              <th style={cellStyle}>작업</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((question) => (
-              <tr key={question.id}>
-                <td style={cellStyle}>{question.era}</td>
-                <td style={cellStyle}>{question.unit}</td>
-                <td style={cellStyle}>{question.difficulty}</td>
-                <td style={cellStyle}>
-                  {question.type in QUESTION_TYPE_LABELS
-                    ? QUESTION_TYPE_LABELS[question.type as SupportedQuestionType]
-                    : question.type}
-                </td>
-                <td style={cellStyle}>{answerQuestionText(question)}</td>
-                <td style={cellStyle}>{answerSummary(question)}</td>
-                <td style={cellStyle}>
-                  {(question.type === 'multipleChoice' || question.type === 'shortAnswer') && (
-                    <button type="button" onClick={() => setFormMode({ kind: 'edit', question })}>
-                      수정
-                    </button>
-                  )}{' '}
-                  <button type="button" onClick={() => handleDelete(question)}>
-                    삭제
-                  </button>
-                </td>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>시대</th>
+                <th>단원</th>
+                <th>난이도</th>
+                <th>유형</th>
+                <th>질문</th>
+                <th>정답</th>
+                <th>작업</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((question) => (
+                <tr key={question.id}>
+                  <td>{question.era}</td>
+                  <td>{question.unit}</td>
+                  <td>{question.difficulty}</td>
+                  <td>
+                    {question.type in QUESTION_TYPE_LABELS
+                      ? QUESTION_TYPE_LABELS[question.type as SupportedQuestionType]
+                      : question.type}
+                  </td>
+                  <td className="wrap-text">{answerQuestionText(question)}</td>
+                  <td className="wrap-text">{answerSummary(question)}</td>
+                  <td>
+                    {(question.type === 'multipleChoice' || question.type === 'shortAnswer') && (
+                      <button type="button" onClick={() => setFormMode({ kind: 'edit', question })}>
+                        수정
+                      </button>
+                    )}{' '}
+                    <button type="button" className="button-danger" onClick={() => handleDelete(question)}>
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 }
-
-const cellStyle = { border: '1px solid #ddd', padding: '0.25rem 0.5rem', textAlign: 'left' as const };
 
 export default QuestionBank;

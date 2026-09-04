@@ -2,22 +2,33 @@ type HomeProps = {
   onNavigateToQuestionBank: () => void;
   onNavigateToClassManager: () => void;
   onNavigateToGameSelect: () => void;
+  onNavigateToSessionHistory: () => void;
 };
 
-function Home({ onNavigateToQuestionBank, onNavigateToClassManager, onNavigateToGameSelect }: HomeProps) {
+function Home({
+  onNavigateToQuestionBank,
+  onNavigateToClassManager,
+  onNavigateToGameSelect,
+  onNavigateToSessionHistory
+}: HomeProps) {
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+    <div className="page">
       <h1>새김</h1>
-      <p>중학교 역사 수업용 퀴즈 게임</p>
-      <button onClick={onNavigateToQuestionBank} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-        문제은행 관리
-      </button>{' '}
-      <button onClick={onNavigateToClassManager} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-        학급 관리
-      </button>{' '}
-      <button onClick={onNavigateToGameSelect} style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-        게임 시작
-      </button>
+      <p className="muted-text">중학교 역사 수업용 퀴즈 게임</p>
+      <div className="button-row">
+        <button type="button" onClick={onNavigateToQuestionBank}>
+          문제은행 관리
+        </button>
+        <button type="button" onClick={onNavigateToClassManager}>
+          학급 관리
+        </button>
+        <button type="button" className="button-primary" onClick={onNavigateToGameSelect}>
+          게임 시작
+        </button>
+        <button type="button" onClick={onNavigateToSessionHistory}>
+          세션 기록
+        </button>
+      </div>
     </div>
   );
 }

@@ -7,8 +7,6 @@ type TeamManagerProps = {
   onChange: (teams: Team[]) => void;
 };
 
-const cellStyle = { border: '1px solid #ddd', padding: '0.25rem 0.5rem', textAlign: 'left' as const };
-
 function TeamManager({ students, teams, onChange }: TeamManagerProps) {
   const [newTeamName, setNewTeamName] = useState('');
   const [autoTeamCount, setAutoTeamCount] = useState('2');
@@ -62,18 +60,18 @@ function TeamManager({ students, teams, onChange }: TeamManagerProps) {
     <div>
       <h3>팀 구성</h3>
 
-      <div style={{ marginBottom: '0.5rem' }}>
-        <input placeholder="팀 이름" value={newTeamName} onChange={(event) => setNewTeamName(event.target.value)} />{' '}
-        <button type="button" onClick={handleAddTeam}>
+      <div className="field-row">
+        <input placeholder="팀 이름" value={newTeamName} onChange={(event) => setNewTeamName(event.target.value)} />
+        <button type="button" className="button-primary" onClick={handleAddTeam}>
           팀 추가
-        </button>{' '}
+        </button>
         <input
           type="number"
           min={2}
           value={autoTeamCount}
           onChange={(event) => setAutoTeamCount(event.target.value)}
           style={{ width: '3rem' }}
-        />{' '}
+        />
         <button type="button" onClick={handleAutoSplit} disabled={students.length === 0}>
           팀으로 자동 나누기
         </button>
@@ -84,7 +82,7 @@ function TeamManager({ students, teams, onChange }: TeamManagerProps) {
           {teams.map((team) => (
             <li key={team.id}>
               {team.name} ({team.studentIds.length}명){' '}
-              <button type="button" onClick={() => handleRemoveTeam(team.id)}>
+              <button type="button" className="button-danger" onClick={() => handleRemoveTeam(team.id)}>
                 삭제
               </button>
             </li>
@@ -92,37 +90,39 @@ function TeamManager({ students, teams, onChange }: TeamManagerProps) {
         </ul>
       )}
 
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th style={cellStyle}>학생</th>
-            <th style={cellStyle}>소속팀</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student) => {
-            const currentTeam = teams.find((team) => team.studentIds.includes(student.id));
-            return (
-              <tr key={student.id}>
-                <td style={cellStyle}>{student.name}</td>
-                <td style={cellStyle}>
-                  <select
-                    value={currentTeam?.id ?? ''}
-                    onChange={(event) => handleAssign(student.id, event.target.value)}
-                  >
-                    <option value="">미배정</option>
-                    {teams.map((team) => (
-                      <option key={team.id} value={team.id}>
-                        {team.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-scroll">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>학생</th>
+              <th>소속팀</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((student) => {
+              const currentTeam = teams.find((team) => team.studentIds.includes(student.id));
+              return (
+                <tr key={student.id}>
+                  <td>{student.name}</td>
+                  <td>
+                    <select
+                      value={currentTeam?.id ?? ''}
+                      onChange={(event) => handleAssign(student.id, event.target.value)}
+                    >
+                      <option value="">미배정</option>
+                      {teams.map((team) => (
+                        <option key={team.id} value={team.id}>
+                          {team.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

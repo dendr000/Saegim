@@ -92,10 +92,10 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+    <form onSubmit={handleSubmit} className="panel">
       <h3>{initial ? '문항 수정' : '문항 추가'}</h3>
 
-      {error && <p style={{ color: 'crimson' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
 
       <div style={{ marginBottom: '0.5rem' }}>
         <label>
@@ -177,7 +177,9 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
         </div>
       )}
 
-      <button type="submit">{initial ? '수정 저장' : '추가'}</button>{' '}
+      <button type="submit" className="button-primary">
+        {initial ? '수정 저장' : '추가'}
+      </button>{' '}
       <button type="button" onClick={onCancel}>
         취소
       </button>

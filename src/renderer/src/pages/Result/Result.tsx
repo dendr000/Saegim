@@ -8,12 +8,14 @@ type ResultProps = {
 
 function Result({ scores, onDone }: ResultProps) {
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>결과</h1>
-      <Scoreboard entries={scores} />
-      <button type="button" onClick={onDone} style={{ marginTop: '1rem' }}>
-        확인
-      </button>
+    <div className="stage">
+      <div className="stage-inner">
+        <h1 className="stage-title">결과</h1>
+        <Scoreboard entries={scores} />
+        <button type="button" className="stage-button stage-button-primary" onClick={onDone} style={{ marginTop: '1.5rem' }}>
+          확인
+        </button>
+      </div>
     </div>
   );
 }

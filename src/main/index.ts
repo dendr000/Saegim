@@ -6,14 +6,15 @@ import { registerSystemIpc } from './ipc/system';
 import { registerQuestionsIpc } from './ipc/questions';
 import { registerClassesIpc } from './ipc/classes';
 import { registerMapsIpc } from './ipc/maps';
+import { registerSessionsIpc } from './ipc/sessions';
 
 // userData 경로 재지정은 whenReady 이전에 끝나야 한다.
 initializePortablePaths();
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 700,
+    width: 1280,
+    height: 800,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -44,6 +45,7 @@ app.whenReady().then(() => {
   registerQuestionsIpc();
   registerClassesIpc();
   registerMapsIpc();
+  registerSessionsIpc();
   createWindow();
 
   app.on('activate', () => {

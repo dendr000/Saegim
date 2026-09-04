@@ -1,13 +1,15 @@
 import { useReducer } from 'react';
 import type { Question } from '../../../../shared/types/question';
+import type { Answer } from '../_shared/types';
 import { gradeAnswer } from '../_shared/gradeAnswer';
 import { findEligibleQuestions } from './regionQuestionMatch';
 import type { TerritoryConfig, TerritoryState } from './types';
 
 type Action =
   | { type: 'SELECT_REGION'; regionId: string }
-  | { type: 'JUDGE_ANSWER'; value: unknown }
-  | { type: 'END_GAME_MANUALLY' };
+  | { type: 'JUDGE_ANSWER'; answer: Answer }
+  | { type: 'END_GAME_MANUALLY' }
+  | { type: 'REASSIGN_REGION'; regionId: string; newOwnerTeamId: string | null };
 
 function pickRandomQuestion(questions: Question[]): Question {
   return questions[Math.floor(Math.random() * questions.length)];
@@ -27,7 +29,8 @@ function createInitialState(config: TerritoryConfig): TerritoryState {
     currentQuestion: null,
     blockedRegionId: null,
     status: 'inProgress',
-    lastResult: null
+    lastResult: null,
+    answerHistory: []
   };
 }
 
@@ -65,16 +68,20 @@ function territoryReducer(state: TerritoryState, action: Action): TerritoryState
     case 'JUDGE_ANSWER': {
       if (!state.pendingRegionId || !state.currentQuestion) return state;
 
-      const { correct, answerText } = gradeAnswer(state.currentQuestion, action.value);
-      const currentTeam = state.config.teams[state.currentTeamIndex];
+      const { correct, answerText } = gradeAnswer(state.currentQuestion, action.answer.value);
+      const participantId = action.answer.participantId;
 
       const regionOwners = { ...state.regionOwners };
       if (correct) {
-        regionOwners[state.pendingRegionId] = currentTeam.id;
+        regionOwners[state.pendingRegionId] = participantId;
       }
 
       const nextTeamIndex = (state.currentTeamIndex + 1) % state.config.teams.length;
       const finished = allRegionsOwned(regionOwners);
+      const answerHistory = [
+        ...state.answerHistory,
+        { questionId: state.currentQuestion.id, participantId, correct }
+      ];
 
       return {
         ...state,
@@ -83,12 +90,21 @@ function territoryReducer(state: TerritoryState, action: Action): TerritoryState
         pendingRegionId: null,
         currentQuestion: null,
         status: finished ? 'finished' : 'inProgress',
-        lastResult: { regionId: state.pendingRegionId, teamId: currentTeam.id, correct, answerText }
+        lastResult: { regionId: state.pendingRegionId, teamId: participantId, correct, answerText },
+        answerHistory
       };
     }
 
     case 'END_GAME_MANUALLY': {
       return { ...state, status: 'finished' };
+    }
+
+    case 'REASSIGN_REGION': {
+      // 교사 수동 개입: 잘못 배정된 칸의 소유팀을 바로잡는다(다른 팀으로, 또는 미점령으로).
+      return {
+        ...state,
+        regionOwners: { ...state.regionOwners, [action.regionId]: action.newOwnerTeamId }
+      };
     }
 
     default:
@@ -104,12 +120,17 @@ export function useTerritoryEngine(config: TerritoryConfig) {
   }
 
   function judgeAnswer(value: unknown): void {
-    dispatch({ type: 'JUDGE_ANSWER', value });
+    const currentTeam = state.config.teams[state.currentTeamIndex];
+    dispatch({ type: 'JUDGE_ANSWER', answer: { participantId: currentTeam.id, value, submittedAt: Date.now() } });
   }
 
   function endGame(): void {
     dispatch({ type: 'END_GAME_MANUALLY' });
   }
 
-  return { state, selectRegion, judgeAnswer, endGame };
+  function reassignRegion(regionId: string, newOwnerTeamId: string | null): void {
+    dispatch({ type: 'REASSIGN_REGION', regionId, newOwnerTeamId });
+  }
+
+  return { state, selectRegion, judgeAnswer, endGame, reassignRegion };
 }

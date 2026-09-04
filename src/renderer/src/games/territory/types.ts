@@ -1,4 +1,5 @@
 import type { Question } from '../../../../shared/types/question';
+import type { SessionAnswerRecord } from '../_shared/types';
 import type { MapRegion } from './mapSvg';
 
 export type TerritoryTeam = { id: string; label: string };
@@ -10,6 +11,8 @@ export type TerritoryConfig = {
   mapSvgContent: string;
   // 객관식/단답형 전체 풀 (지역별로 걸러내는 건 리듀서가 한다).
   questions: Question[];
+  classId: string;
+  className: string;
 };
 
 export type TerritoryResult = {
@@ -31,4 +34,6 @@ export type TerritoryState = {
   blockedRegionId: string | null;
   status: 'inProgress' | 'finished';
   lastResult: TerritoryResult | null;
+  // 세션 기록·오답 통계용으로 이번 게임에서 나온 모든 판정을 쌓아둔다.
+  answerHistory: SessionAnswerRecord[];
 };
