@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import type { BettingConfig } from './types';
 
 type BettingSetupProps = {
@@ -14,8 +19,7 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
   const [selectedClassId, setSelectedClassId] = useState('');
   const [totalRounds, setTotalRounds] = useState(5);
   const [startingScore, setStartingScore] = useState(1000);
-  const [eraFilter, setEraFilter] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -25,12 +29,10 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
   const selectedClass = classes.find((schoolClass) => schoolClass.id === selectedClassId) ?? null;
   const teams = selectedClass?.teams ?? [];
 
-  const eligibleQuestions = questions.filter((question) => {
-    if (question.type !== 'multipleChoice' && question.type !== 'shortAnswer') return false;
-    if (eraFilter && !question.era.includes(eraFilter)) return false;
-    if (unitFilter && !question.unit.includes(unitFilter)) return false;
-    return true;
-  });
+  const typeSupportedQuestions = questions.filter(
+    (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
+  );
+  const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   const canStart = Boolean(selectedClass) && teams.length >= 2 && totalRounds >= 1 && eligibleQuestions.length > 0;
 
@@ -97,16 +99,13 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
         </label>
       </div>
 
-      <div className="field-row">
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
-        <span className="muted-text">
-          사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)
-          {eligibleQuestions.length > 0 && eligibleQuestions.length < totalRounds
-            ? ` — 라운드 수(${totalRounds})보다 적어 일부 문제가 반복됩니다`
-            : ''}
-        </span>
-      </div>
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <p className="muted-text">
+        사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)
+        {eligibleQuestions.length > 0 && eligibleQuestions.length < totalRounds
+          ? ` — 라운드 수(${totalRounds})보다 적어 일부 문제가 반복됩니다`
+          : ''}
+      </p>
 
       <button type="button" className="button-primary" onClick={handleStart} disabled={!canStart}>
         시작

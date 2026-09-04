@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
 import ParticipantPicker, { participantOptionsFor, type ParticipantMode } from '../_shared/ParticipantPicker';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import type { BossRaidConfig } from './types';
 
 type BossRaidSetupProps = {
@@ -22,8 +27,7 @@ function BossRaidSetup({ onStart, onCancel }: BossRaidSetupProps) {
   const [bossMaxHp, setBossMaxHp] = useState(300);
   const [hpTouched, setHpTouched] = useState(false);
   const [durationSeconds, setDurationSeconds] = useState(300);
-  const [eraFilter, setEraFilter] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -48,12 +52,10 @@ function BossRaidSetup({ onStart, onCancel }: BossRaidSetupProps) {
 
   // 보스 레이드는 타임어택과 같은 범위(객관식/단답형)를 지원한다 — 데미지 계산이
   // 문항 유형과 무관해서 좁힐 이유가 없다.
-  const eligibleQuestions = questions.filter((question) => {
-    if (question.type !== 'multipleChoice' && question.type !== 'shortAnswer') return false;
-    if (eraFilter && !question.era.includes(eraFilter)) return false;
-    if (unitFilter && !question.unit.includes(unitFilter)) return false;
-    return true;
-  });
+  const typeSupportedQuestions = questions.filter(
+    (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
+  );
+  const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   // 문제 풀 크기에 맞춰 보스 체력 기본값을 스스로 제안한다 — 교사가 직접 건드리면
   // 더는 자동으로 따라가지 않는다.
@@ -142,11 +144,8 @@ function BossRaidSetup({ onStart, onCancel }: BossRaidSetupProps) {
         </label>
       </div>
 
-      <div className="field-row">
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
-        <span className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형)</span>
-      </div>
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <p className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형)</p>
 
       <button
         type="button"

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Difficulty, Question } from '../../../../shared/types/question';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import type { BingoGridSize, QuestionBingoConfig } from './types';
 
 type QuestionBingoSetupProps = {
@@ -16,8 +21,7 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [gridSize, setGridSize] = useState<BingoGridSize>(5);
-  const [eraFilter, setEraFilter] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -28,14 +32,10 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
   const teams = selectedClass?.teams ?? [];
 
   // 객관식/단답형만 지원(문제은행 CRUD와 같은 범위). 난이도별 매칭은 아래에서 계산.
-  const supportedQuestions = questions.filter(
+  const typeSupportedQuestions = questions.filter(
     (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
   );
-  const eligibleQuestions = supportedQuestions.filter((question) => {
-    if (eraFilter && !question.era.includes(eraFilter)) return false;
-    if (unitFilter && !question.unit.includes(unitFilter)) return false;
-    return true;
-  });
+  const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   const difficultyCounts = DIFFICULTIES.map((difficulty) => ({
     difficulty,
@@ -92,10 +92,7 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
         ))}
       </div>
 
-      <div className="field-row">
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
-      </div>
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
 
       <div className="field-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
         <p style={{ margin: 0 }}>난이도별 사용 가능한 문제 수:</p>

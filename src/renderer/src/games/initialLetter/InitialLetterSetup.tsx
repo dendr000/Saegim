@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
 import ParticipantPicker, { participantOptionsFor, type ParticipantMode } from '../_shared/ParticipantPicker';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import type { InitialLetterConfig, InitialLetterMode } from './types';
 
 type InitialLetterSetupProps = {
@@ -17,8 +22,7 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<InitialLetterMode>('hotSeat');
   const [durationSeconds, setDurationSeconds] = useState(60);
-  const [eraFilter, setEraFilter] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -43,12 +47,8 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
 
   // 초성 퀴즈는 단답형만 지원한다 — 객관식은 보기가 화면에 다 보여서 초성으로 맞히는
   // 게임이 성립하지 않는다.
-  const eligibleQuestions = questions.filter((question) => {
-    if (question.type !== 'shortAnswer') return false;
-    if (eraFilter && !question.era.includes(eraFilter)) return false;
-    if (unitFilter && !question.unit.includes(unitFilter)) return false;
-    return true;
-  });
+  const typeSupportedQuestions = questions.filter((question) => question.type === 'shortAnswer');
+  const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   function handleStart(): void {
     if (!selectedClass) return;
@@ -123,11 +123,8 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
         </label>
       </div>
 
-      <div className="field-row">
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
-        <span className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (단답형만)</span>
-      </div>
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <p className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (단답형만)</p>
 
       <button
         type="button"

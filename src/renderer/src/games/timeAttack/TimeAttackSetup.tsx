@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
 import ParticipantPicker, { participantOptionsFor, type ParticipantMode } from '../_shared/ParticipantPicker';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import type { TimeAttackConfig, TimeAttackMode } from './types';
 
 type TimeAttackSetupProps = {
@@ -17,8 +22,7 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<TimeAttackMode>('hotSeat');
   const [durationSeconds, setDurationSeconds] = useState(60);
-  const [eraFilter, setEraFilter] = useState('');
-  const [unitFilter, setUnitFilter] = useState('');
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -42,12 +46,10 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
   }
 
   // 타임어택은 문제은행 CRUD와 같은 범위(객관식/단답형)만 지원한다.
-  const eligibleQuestions = questions.filter((question) => {
-    if (question.type !== 'multipleChoice' && question.type !== 'shortAnswer') return false;
-    if (eraFilter && !question.era.includes(eraFilter)) return false;
-    if (unitFilter && !question.unit.includes(unitFilter)) return false;
-    return true;
-  });
+  const typeSupportedQuestions = questions.filter(
+    (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
+  );
+  const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   function handleStart(): void {
     if (!selectedClass) return;
@@ -122,11 +124,8 @@ function TimeAttackSetup({ onStart, onCancel }: TimeAttackSetupProps) {
         </label>
       </div>
 
-      <div className="field-row">
-        <input placeholder="시대 필터" value={eraFilter} onChange={(event) => setEraFilter(event.target.value)} />
-        <input placeholder="단원 필터" value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)} />
-        <span className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)</span>
-      </div>
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <p className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)</p>
 
       <button
         type="button"

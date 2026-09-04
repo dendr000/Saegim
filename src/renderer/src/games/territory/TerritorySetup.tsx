@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
+import QuestionFilterPicker, {
+  applyQuestionFilter,
+  createEmptyQuestionFilter,
+  type QuestionFilterState
+} from '../_shared/QuestionFilterPicker';
 import { parseRegionIdsFromSvg, type MapRegion } from './mapSvg';
 import { findEligibleQuestions } from './regionQuestionMatch';
 import type { TerritoryConfig } from './types';
@@ -18,6 +23,7 @@ function TerritorySetup({ onStart, onCancel }: TerritorySetupProps) {
   const [selectedMapFile, setSelectedMapFile] = useState('');
   const [mapSvgContent, setMapSvgContent] = useState('');
   const [regions, setRegions] = useState<MapRegion[]>([]);
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -44,9 +50,10 @@ function TerritorySetup({ onStart, onCancel }: TerritorySetupProps) {
   const teams = selectedClass?.teams ?? [];
 
   // 객관식/단답형만 지원 (문제은행 CRUD와 같은 범위). 지역별 매칭은 아래에서 각각 계산한다.
-  const supportedQuestions = questions.filter(
+  const typeSupportedQuestions = questions.filter(
     (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
   );
+  const supportedQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
 
   const regionQuestionCounts = regions.map((region) => ({
     region,
@@ -109,6 +116,8 @@ function TerritorySetup({ onStart, onCancel }: TerritorySetupProps) {
           </select>
         </label>
       </div>
+
+      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
 
       {regions.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
