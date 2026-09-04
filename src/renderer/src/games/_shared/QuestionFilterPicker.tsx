@@ -64,9 +64,26 @@ function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   return next;
 }
 
+// 선택된 시대(들)에 실제로 존재하는 단원만 뽑는다. 시대를 하나도 안 골랐으면
+// "제한 없음"이니 전체 단원을 대상으로 한다.
+function unitsForEras(questions: Question[], eras: Set<string>): string[] {
+  const source = eras.size > 0 ? questions.filter((question) => eras.has(question.era)) : questions;
+  return Array.from(new Set(source.map((question) => question.unit))).sort();
+}
+
 function QuestionFilterPicker({ questions, filter, onChange }: QuestionFilterPickerProps) {
   const eras = Array.from(new Set(questions.map((question) => question.era))).sort();
-  const units = Array.from(new Set(questions.map((question) => question.unit))).sort();
+  const units = unitsForEras(questions, filter.eras);
+
+  // 시대 선택이 바뀌면 단원 목록도 자동으로 그 시대에 있는 것만 남기고 전부 선택한다 —
+  // 역사 지식이 없어도 "이 시대엔 이런 단원이 있구나"를 바로 알 수 있고, 존재하지 않는
+  // 시대·단원 조합을 실수로 골라 사용 가능한 문제가 0개가 되는 상황도 막는다. 시대를
+  // 다시 다 해제하면 단원도 "제한 없음"으로 함께 풀린다.
+  function handleEraToggle(era: string): void {
+    const nextEras = toggleInSet(filter.eras, era);
+    const nextUnits = nextEras.size > 0 ? new Set(unitsForEras(questions, nextEras)) : new Set<string>();
+    onChange({ ...filter, eras: nextEras, units: nextUnits });
+  }
 
   return (
     <div className="field-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -75,11 +92,7 @@ function QuestionFilterPicker({ questions, filter, onChange }: QuestionFilterPic
           <span className="muted-text">시대: </span>
           {eras.map((era) => (
             <label key={era} style={{ marginRight: '0.75rem' }}>
-              <input
-                type="checkbox"
-                checked={filter.eras.has(era)}
-                onChange={() => onChange({ ...filter, eras: toggleInSet(filter.eras, era) })}
-              />{' '}
+              <input type="checkbox" checked={filter.eras.has(era)} onChange={() => handleEraToggle(era)} />{' '}
               {era}
             </label>
           ))}
@@ -88,7 +101,7 @@ function QuestionFilterPicker({ questions, filter, onChange }: QuestionFilterPic
 
       {units.length > 0 && (
         <div style={{ marginBottom: '0.5rem' }}>
-          <span className="muted-text">단원: </span>
+          <span className="muted-text">단원{filter.eras.size > 0 ? '(선택한 시대 안에서)' : ''}: </span>
           {units.map((unit) => (
             <label key={unit} style={{ marginRight: '0.75rem' }}>
               <input
