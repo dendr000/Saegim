@@ -26,6 +26,15 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
     setSearchText('');
   }
 
+  // 검색 결과가 하나 이상이면 엔터로 맨 위 결과를 바로 선택 — 매번 마우스로
+  // 클릭하지 않아도 되게.
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === 'Enter' && searchResults.length > 0) {
+      event.preventDefault();
+      selectParticipant(searchResults[0].id);
+    }
+  }
+
   return (
     <div>
       <p className="stage-question">{question.payload.question}</p>
@@ -40,6 +49,7 @@ function SimultaneousControls({ question, participants, onSubmit, onSkip, onEndS
           placeholder="이름 검색 (학생이 많을 때)"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
         />
         {trimmedSearch && (
           <div

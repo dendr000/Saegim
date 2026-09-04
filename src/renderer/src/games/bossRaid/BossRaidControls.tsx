@@ -26,6 +26,13 @@ function BossRaidControls({ question, participants, onSubmit, onSkip, onEndGame 
     setSearchText('');
   }
 
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === 'Enter' && searchResults.length > 0) {
+      event.preventDefault();
+      selectParticipant(searchResults[0].id);
+    }
+  }
+
   return (
     <div>
       <p className="stage-question">{question.payload.question}</p>
@@ -39,6 +46,7 @@ function BossRaidControls({ question, participants, onSubmit, onSkip, onEndGame 
           placeholder="이름 검색 (학생이 많을 때)"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
         />
         {trimmedSearch && (
           <div

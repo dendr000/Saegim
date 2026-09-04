@@ -38,6 +38,13 @@ function SimultaneousHintControls({
     setSearchText('');
   }
 
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === 'Enter' && searchResults.length > 0) {
+      event.preventDefault();
+      selectParticipant(searchResults[0].id);
+    }
+  }
+
   if (question.type !== 'shortAnswer') {
     return <p className="stage-text">이 유형은 힌트 차감형에서 지원하지 않습니다.</p>;
   }
@@ -75,6 +82,7 @@ function SimultaneousHintControls({
           placeholder="이름 검색 (학생이 많을 때)"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
         />
         {trimmedSearch && (
           <div

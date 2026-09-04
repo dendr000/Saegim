@@ -33,6 +33,13 @@ function SimultaneousInitialsControls({
     setSearchText('');
   }
 
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === 'Enter' && searchResults.length > 0) {
+      event.preventDefault();
+      selectParticipant(searchResults[0].id);
+    }
+  }
+
   if (question.type !== 'shortAnswer') {
     return <p className="stage-text">이 유형은 초성 퀴즈에서 지원하지 않습니다.</p>;
   }
@@ -54,6 +61,7 @@ function SimultaneousInitialsControls({
           placeholder="이름 검색 (학생이 많을 때)"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
         />
         {trimmedSearch && (
           <div
