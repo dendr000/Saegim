@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
+import ParticipantPicker, { participantOptionsFor, type ParticipantMode } from '../_shared/ParticipantPicker';
 import type { HintDeductionConfig, HintDeductionMode } from './types';
 
 type HintDeductionSetupProps = {
@@ -12,7 +13,8 @@ function HintDeductionSetup({ onStart, onCancel }: HintDeductionSetupProps) {
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedClassId, setSelectedClassId] = useState('');
-  const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set());
+  const [participantMode, setParticipantMode] = useState<ParticipantMode>('student');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<HintDeductionMode>('hotSeat');
   const [durationSeconds, setDurationSeconds] = useState(60);
   const [eraFilter, setEraFilter] = useState('');
@@ -26,11 +28,12 @@ function HintDeductionSetup({ onStart, onCancel }: HintDeductionSetupProps) {
   const selectedClass = classes.find((schoolClass) => schoolClass.id === selectedClassId) ?? null;
 
   useEffect(() => {
-    setSelectedStudentIds(new Set(selectedClass?.students.map((student) => student.id) ?? []));
-  }, [selectedClassId]);
+    setSelectedIds(new Set(participantOptionsFor(selectedClass, participantMode).map((option) => option.id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClassId, participantMode]);
 
-  function toggleStudent(id: string): void {
-    setSelectedStudentIds((prev) => {
+  function toggleParticipant(id: string): void {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -49,9 +52,9 @@ function HintDeductionSetup({ onStart, onCancel }: HintDeductionSetupProps) {
 
   function handleStart(): void {
     if (!selectedClass) return;
-    const participants = selectedClass.students
-      .filter((student) => selectedStudentIds.has(student.id))
-      .map((student) => ({ id: student.id, label: student.name }));
+    const participants = participantOptionsFor(selectedClass, participantMode).filter((option) =>
+      selectedIds.has(option.id)
+    );
 
     if (participants.length === 0 || eligibleQuestions.length === 0) return;
 
@@ -87,19 +90,13 @@ function HintDeductionSetup({ onStart, onCancel }: HintDeductionSetupProps) {
       </div>
 
       {selectedClass && (
-        <div className="field-row">
-          <p style={{ width: '100%', margin: 0 }}>참가 학생 ({selectedStudentIds.size}명 선택됨):</p>
-          {selectedClass.students.map((student) => (
-            <label key={student.id}>
-              <input
-                type="checkbox"
-                checked={selectedStudentIds.has(student.id)}
-                onChange={() => toggleStudent(student.id)}
-              />{' '}
-              {student.name}
-            </label>
-          ))}
-        </div>
+        <ParticipantPicker
+          schoolClass={selectedClass}
+          mode={participantMode}
+          onModeChange={setParticipantMode}
+          selectedIds={selectedIds}
+          onToggle={toggleParticipant}
+        />
       )}
 
       <div className="field-row">
@@ -136,7 +133,7 @@ function HintDeductionSetup({ onStart, onCancel }: HintDeductionSetupProps) {
         type="button"
         className="button-primary"
         onClick={handleStart}
-        disabled={!selectedClass || selectedStudentIds.size === 0 || eligibleQuestions.length === 0}
+        disabled={!selectedClass || selectedIds.size === 0 || eligibleQuestions.length === 0}
       >
         시작
       </button>
