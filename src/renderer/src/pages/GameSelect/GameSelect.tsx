@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import TimeAttackSetup from '../../games/timeAttack/TimeAttackSetup';
 import TimeAttackPlay from '../../games/timeAttack/TimeAttackPlay';
 import type { TimeAttackConfig } from '../../games/timeAttack/types';
@@ -14,10 +14,28 @@ import type { InitialLetterConfig } from '../../games/initialLetter/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
+import { GAME_MODE_CATALOG, GAME_MODE_CATEGORY_LABELS, type GameModeCategory } from './gameModeCatalog';
 
 type GameSelectProps = {
   onBack: () => void;
 };
+
+function BackArrowIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M20 20l-4.8-4.8" />
+    </svg>
+  );
+}
 
 type FlowState =
   | { step: 'select' }
@@ -33,6 +51,34 @@ type FlowState =
 
 function GameSelect({ onBack }: GameSelectProps) {
   const [flow, setFlow] = useState<FlowState>({ step: 'select' });
+  const [searchText, setSearchText] = useState('');
+
+  const normalizedSearch = searchText.trim().toLowerCase();
+  const filteredCatalog = useMemo(() => {
+    if (!normalizedSearch) return GAME_MODE_CATALOG;
+    return GAME_MODE_CATALOG.filter(
+      (entry) =>
+        entry.title.toLowerCase().includes(normalizedSearch) ||
+        entry.description.toLowerCase().includes(normalizedSearch)
+    );
+  }, [normalizedSearch]);
+
+  const categorizedEntries = useMemo(() => {
+    const categories: GameModeCategory[] = ['solo', 'team', 'concept'];
+    return categories
+      .map((category) => ({
+        category,
+        entries: filteredCatalog.filter((entry) => entry.category === category)
+      }))
+      .filter((group) => group.entries.length > 0);
+  }, [filteredCatalog]);
+
+  function handleSelectMode(id: GameMode): void {
+    if (id === 'timeAttack') setFlow({ step: 'timeAttackSetup' });
+    else if (id === 'territory') setFlow({ step: 'territorySetup' });
+    else if (id === 'betting') setFlow({ step: 'bettingSetup' });
+    else if (id === 'initialLetter') setFlow({ step: 'initialLetterSetup' });
+  }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
   async function handleFinish(
@@ -130,24 +176,46 @@ function GameSelect({ onBack }: GameSelectProps) {
 
   return (
     <div className="page">
-      <button type="button" className="page-back" onClick={onBack}>
-        ← 홈
+      <button type="button" className="page-back icon-button" onClick={onBack}>
+        <BackArrowIcon /> 홈
       </button>
       <h1>게임 선택</h1>
-      <div className="button-row">
-        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'timeAttackSetup' })}>
-          타임어택 콤보
-        </button>
-        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'territorySetup' })}>
-          땅따먹기
-        </button>
-        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'bettingSetup' })}>
-          베팅형
-        </button>
-        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'initialLetterSetup' })}>
-          초성 퀴즈
-        </button>
+      <p className="muted-text">학급에 맞는 게임 모드를 골라주세요.</p>
+
+      <div className="mode-search">
+        <SearchIcon />
+        <input
+          type="text"
+          placeholder="게임 이름이나 설명으로 검색"
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+        />
       </div>
+
+      {categorizedEntries.length === 0 ? (
+        <p className="mode-empty">일치하는 게임이 없습니다.</p>
+      ) : (
+        categorizedEntries.map(({ category, entries }) => (
+          <div key={category} className="mode-section">
+            <h2 className="mode-section-title">{GAME_MODE_CATEGORY_LABELS[category]}</h2>
+            <div className="mode-grid">
+              {entries.map((entry, index) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  className="mode-card"
+                  style={{ animationDelay: `${index * 0.06}s` }}
+                  onClick={() => handleSelectMode(entry.id)}
+                >
+                  {entry.icon}
+                  <span className="mode-card-title">{entry.title}</span>
+                  <span className="mode-card-description">{entry.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

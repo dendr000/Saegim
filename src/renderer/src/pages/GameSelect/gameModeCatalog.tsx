@@ -1,0 +1,98 @@
+import type { ReactNode } from 'react';
+import type { GameMode } from '../../../../shared/types/session';
+
+// 게임 모드가 늘어나도(CLAUDE.md "향후 추가" 목록) 이 카탈로그에 항목만 추가하면
+// 게임 선택 화면의 검색·분류가 자동으로 따라오게 하기 위한 데이터 정의.
+export type GameModeCategory = 'solo' | 'team' | 'concept';
+
+export type GameModeCatalogEntry = {
+  id: GameMode;
+  title: string;
+  description: string;
+  category: GameModeCategory;
+  icon: ReactNode;
+};
+
+export const GAME_MODE_CATEGORY_LABELS: Record<GameModeCategory, string> = {
+  solo: '개인전 · 전체 참여형',
+  team: '팀 대항형',
+  concept: '개념 학습형'
+};
+
+const iconProps = {
+  viewBox: '0 0 24 24',
+  fill: 'none' as const,
+  stroke: 'currentColor',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const
+};
+
+function StopwatchIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <circle cx="12" cy="13.5" r="8" />
+      <path d="M12 13.5V9.5" />
+      <path d="M9 3.5h6" />
+      <path d="M18.5 6l1.2-1.2" />
+    </svg>
+  );
+}
+
+function MapIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <path d="M4 6.5l5-2 6 2 5-2v13l-5 2-6-2-5 2v-13z" />
+      <path d="M9 4.5v13M15 6.5v13" />
+    </svg>
+  );
+}
+
+function CoinsIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <ellipse cx="12" cy="7" rx="7.5" ry="3" />
+      <path d="M4.5 7v5c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3V7" />
+      <path d="M4.5 12v5c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3v-5" />
+    </svg>
+  );
+}
+
+function SpeechBubbleIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 12.5v-6z" />
+    </svg>
+  );
+}
+
+export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
+  {
+    id: 'timeAttack',
+    title: '타임어택 콤보',
+    description: '제한시간 안에 연속 정답으로 배수를 쌓는 개인전.',
+    category: 'solo',
+    icon: <StopwatchIcon />
+  },
+  {
+    id: 'initialLetter',
+    title: '초성 퀴즈',
+    description: '초성만 보고 용어를 맞히는 개인전.',
+    category: 'solo',
+    icon: <SpeechBubbleIcon />
+  },
+  {
+    id: 'territory',
+    title: '땅따먹기',
+    description: '지도 위 지역을 골라 문제를 풀고 점령하는 팀 대항전.',
+    category: 'team',
+    icon: <MapIcon />
+  },
+  {
+    id: 'betting',
+    title: '베팅형',
+    description: '문제 공개 전 점수를 걸고, 마지막 문제로 순위가 뒤집히는 팀 대항전.',
+    category: 'team',
+    icon: <CoinsIcon />
+  }
+];
