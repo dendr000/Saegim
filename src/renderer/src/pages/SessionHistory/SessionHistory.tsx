@@ -12,7 +12,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   betting: '베팅형',
   initialLetter: '초성 퀴즈',
   hintDeduction: '힌트 차감형',
-  bossRaid: '보스 레이드'
+  bossRaid: '보스 레이드',
+  questionBingo: '문제 빙고'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

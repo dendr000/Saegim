@@ -85,6 +85,22 @@ function ShieldIcon() {
   );
 }
 
+function GridIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <rect x="3.5" y="3.5" width="5" height="5" rx="1" />
+      <rect x="9.5" y="3.5" width="5" height="5" rx="1" />
+      <rect x="15.5" y="3.5" width="5" height="5" rx="1" />
+      <rect x="3.5" y="9.5" width="5" height="5" rx="1" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+      <rect x="15.5" y="9.5" width="5" height="5" rx="1" />
+      <rect x="3.5" y="15.5" width="5" height="5" rx="1" />
+      <rect x="9.5" y="15.5" width="5" height="5" rx="1" />
+      <rect x="15.5" y="15.5" width="5" height="5" rx="1" />
+    </svg>
+  );
+}
+
 export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
   {
     id: 'timeAttack',
@@ -127,5 +143,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '반 전체가 힘을 합쳐 체력을 가진 보스를 상대하는 협동전.',
     category: 'team',
     icon: <ShieldIcon />
+  },
+  {
+    id: 'questionBingo',
+    title: '문제 빙고',
+    description: '난이도가 미리 보이는 격자에서 칸을 점령하고, 줄을 완성하면 보너스를 받는 팀 대항전.',
+    category: 'team',
+    icon: <GridIcon />
   }
 ];

@@ -17,6 +17,9 @@ import type { HintDeductionConfig } from '../../games/hintDeduction/types';
 import BossRaidSetup from '../../games/bossRaid/BossRaidSetup';
 import BossRaidPlay from '../../games/bossRaid/BossRaidPlay';
 import type { BossRaidConfig } from '../../games/bossRaid/types';
+import QuestionBingoSetup from '../../games/questionBingo/QuestionBingoSetup';
+import QuestionBingoPlay from '../../games/questionBingo/QuestionBingoPlay';
+import type { QuestionBingoConfig } from '../../games/questionBingo/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -57,6 +60,8 @@ type FlowState =
   | { step: 'hintDeductionPlaying'; config: HintDeductionConfig }
   | { step: 'bossRaidSetup' }
   | { step: 'bossRaidPlaying'; config: BossRaidConfig }
+  | { step: 'questionBingoSetup' }
+  | { step: 'questionBingoPlaying'; config: QuestionBingoConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -90,6 +95,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'initialLetter') setFlow({ step: 'initialLetterSetup' });
     else if (id === 'hintDeduction') setFlow({ step: 'hintDeductionSetup' });
     else if (id === 'bossRaid') setFlow({ step: 'bossRaidSetup' });
+    else if (id === 'questionBingo') setFlow({ step: 'questionBingoSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -214,6 +220,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <BossRaidPlay
         config={flow.config}
         onFinish={(result) => handleFinish('bossRaid', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'questionBingoSetup') {
+    return (
+      <QuestionBingoSetup
+        onStart={(config) => setFlow({ step: 'questionBingoPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'questionBingoPlaying') {
+    return (
+      <QuestionBingoPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('questionBingo', flow.config.classId, flow.config.className, result)}
       />
     );
   }

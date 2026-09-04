@@ -699,3 +699,34 @@ table td.wrap-text {
   background: var(--color-wrong);
   transition: width 0.3s ease;
 }
+
+/* ---------- 문제 빙고 격자 ---------- */
+
+.bingo-grid {
+  display: grid;
+  gap: 4px;
+  margin: var(--space-4) 0;
+  max-width: 640px;
+}
+
+.bingo-cell {
+  aspect-ratio: 1;
+  padding: 0.25rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--stage-border);
+  background: var(--stage-surface);
+  color: var(--stage-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.bingo-cell:not(:disabled):hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.bingo-cell:disabled {
+  cursor: not-allowed;
+}
