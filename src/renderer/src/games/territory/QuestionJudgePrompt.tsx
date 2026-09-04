@@ -1,4 +1,5 @@
 import type { Question } from '../../../../shared/types/question';
+import AnswerConfirm from '../_shared/AnswerConfirm';
 
 type QuestionJudgePromptProps = {
   question: Question;
@@ -20,12 +21,14 @@ function QuestionJudgePrompt({ question, onJudge }: QuestionJudgePromptProps) {
         </div>
       ) : question.type === 'shortAnswer' ? (
         <div>
-          <p className="stage-text">
-            정답: <strong>{question.payload.answer}</strong>
-            {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
-              ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
-              : ''}
-          </p>
+          <AnswerConfirm key={question.id}>
+            <p className="stage-text">
+              정답: <strong>{question.payload.answer}</strong>
+              {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
+                ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
+                : ''}
+            </p>
+          </AnswerConfirm>
           <p className="stage-text">팀이 말한 답이 위 정답과 같나요?</p>
           <button type="button" className="stage-button stage-button-primary" onClick={() => onJudge({ judgedCorrect: true })}>
             정답 처리

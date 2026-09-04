@@ -66,6 +66,16 @@ function SpeechBubbleIcon() {
   );
 }
 
+function LightbulbIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <path d="M9 18h6" />
+      <path d="M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.44.95 1.1 1 1.9l.1.7h4.8l.1-.7c.05-.8.4-1.46 1-1.9A6 6 0 0 0 12 3z" />
+    </svg>
+  );
+}
+
 export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
   {
     id: 'timeAttack',
@@ -80,6 +90,13 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '초성만 보고 용어를 맞히는 개인전.',
     category: 'solo',
     icon: <SpeechBubbleIcon />
+  },
+  {
+    id: 'hintDeduction',
+    title: '힌트 차감형',
+    description: '힌트를 쓸 때마다 점수가 깎이는 개인전. 스스로 실력을 계산하게 만든다.',
+    category: 'solo',
+    icon: <LightbulbIcon />
   },
   {
     id: 'territory',

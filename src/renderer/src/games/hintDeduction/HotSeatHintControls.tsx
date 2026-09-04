@@ -1,23 +1,32 @@
 import type { Question } from '../../../../shared/types/question';
 import AnswerConfirm from '../_shared/AnswerConfirm';
-import { extractInitials } from './initials';
+import { maxHintsFor, revealHintText } from './hints';
+import { HINT_PENALTY_RATIO } from './scoring';
 
-type HotSeatInitialsControlsProps = {
+type HotSeatHintControlsProps = {
   question: Question;
   activeParticipantLabel: string;
+  hintsRevealed: number;
+  onRevealHint: () => void;
   onSubmit: (value: unknown) => void;
   onEndTurn: () => void;
 };
 
-function HotSeatInitialsControls({
+function HotSeatHintControls({
   question,
   activeParticipantLabel,
+  hintsRevealed,
+  onRevealHint,
   onSubmit,
   onEndTurn
-}: HotSeatInitialsControlsProps) {
+}: HotSeatHintControlsProps) {
   if (question.type !== 'shortAnswer') {
-    return <p className="stage-text">이 유형은 초성 퀴즈에서 지원하지 않습니다.</p>;
+    return <p className="stage-text">이 유형은 힌트 차감형에서 지원하지 않습니다.</p>;
   }
+
+  const maxHints = maxHintsFor(question.payload.answer);
+  const hintExhausted = hintsRevealed >= maxHints;
+  const deductionPercent = Math.round(Math.min(1, hintsRevealed * HINT_PENALTY_RATIO) * 100);
 
   return (
     <div>
@@ -27,10 +36,22 @@ function HotSeatInitialsControls({
           다음 학생으로 →
         </button>
       </h3>
-      <p className="stage-text stage-muted">
-        {question.era} / {question.unit}
-      </p>
-      <p className="stage-question">{extractInitials(question.payload.answer)}</p>
+      <p className="stage-question">{question.payload.question}</p>
+
+      {hintsRevealed > 0 && (
+        <p className="stage-question" style={{ fontSize: '1.5rem' }}>
+          {revealHintText(question.payload.answer, hintsRevealed)}
+        </p>
+      )}
+
+      <div className="button-row">
+        <button type="button" className="stage-button" onClick={onRevealHint} disabled={hintExhausted}>
+          힌트 보기 ({hintsRevealed}/{maxHints}회 사용)
+        </button>
+        <span className="stage-text stage-muted">
+          {hintsRevealed > 0 ? `지금 정답 처리 시 점수 -${deductionPercent}%` : '아직 힌트를 쓰지 않았습니다'}
+        </span>
+      </div>
 
       <AnswerConfirm key={question.id}>
         <p className="stage-text">
@@ -55,4 +76,4 @@ function HotSeatInitialsControls({
   );
 }
 
-export default HotSeatInitialsControls;
+export default HotSeatHintControls;

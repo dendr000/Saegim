@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Scoreboard from '../_shared/Scoreboard';
+import AnswerConfirm from '../_shared/AnswerConfirm';
 import { playCorrectSound, playWrongSound } from '../_shared/sounds';
 import type { GameFinishPayload } from '../_shared/types';
 import { useBettingEngine } from './useBettingEngine';
@@ -89,13 +90,15 @@ function BettingPlay({ config, onFinish }: BettingPlayProps) {
             <div style={{ marginTop: '1.5rem' }}>
               <p className="stage-question">{state.currentQuestion.payload.question}</p>
               {state.currentQuestion.type === 'shortAnswer' && (
-                <p className="stage-text">
-                  정답: <strong>{state.currentQuestion.payload.answer}</strong>
-                  {state.currentQuestion.payload.acceptableAnswers &&
-                  state.currentQuestion.payload.acceptableAnswers.length > 0
-                    ? ` (${state.currentQuestion.payload.acceptableAnswers.join(', ')}도 정답)`
-                    : ''}
-                </p>
+                <AnswerConfirm key={state.currentQuestion.id}>
+                  <p className="stage-text">
+                    정답: <strong>{state.currentQuestion.payload.answer}</strong>
+                    {state.currentQuestion.payload.acceptableAnswers &&
+                    state.currentQuestion.payload.acceptableAnswers.length > 0
+                      ? ` (${state.currentQuestion.payload.acceptableAnswers.join(', ')}도 정답)`
+                      : ''}
+                  </p>
+                </AnswerConfirm>
               )}
 
               <h3 className="stage-subtitle">팀별 답</h3>

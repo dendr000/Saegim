@@ -1,4 +1,5 @@
 import type { Question } from '../../../../shared/types/question';
+import AnswerConfirm from '../_shared/AnswerConfirm';
 
 type HotSeatControlsProps = {
   question: Question;
@@ -28,12 +29,14 @@ function HotSeatControls({ question, activeParticipantLabel, onSubmit, onEndTurn
         </div>
       ) : question.type === 'shortAnswer' ? (
         <div>
-          <p className="stage-text">
-            정답: <strong>{question.payload.answer}</strong>
-            {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
-              ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
-              : ''}
-          </p>
+          <AnswerConfirm key={question.id}>
+            <p className="stage-text">
+              정답: <strong>{question.payload.answer}</strong>
+              {question.payload.acceptableAnswers && question.payload.acceptableAnswers.length > 0
+                ? ` (${question.payload.acceptableAnswers.join(', ')}도 정답)`
+                : ''}
+            </p>
+          </AnswerConfirm>
           <p className="stage-text">학생이 말한 답이 위 정답과 같나요?</p>
           <button type="button" className="stage-button stage-button-primary" onClick={() => onSubmit({ judgedCorrect: true })}>
             정답 처리

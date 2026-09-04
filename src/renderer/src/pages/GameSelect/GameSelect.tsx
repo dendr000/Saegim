@@ -11,6 +11,9 @@ import type { BettingConfig } from '../../games/betting/types';
 import InitialLetterSetup from '../../games/initialLetter/InitialLetterSetup';
 import InitialLetterPlay from '../../games/initialLetter/InitialLetterPlay';
 import type { InitialLetterConfig } from '../../games/initialLetter/types';
+import HintDeductionSetup from '../../games/hintDeduction/HintDeductionSetup';
+import HintDeductionPlay from '../../games/hintDeduction/HintDeductionPlay';
+import type { HintDeductionConfig } from '../../games/hintDeduction/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -47,6 +50,8 @@ type FlowState =
   | { step: 'bettingPlaying'; config: BettingConfig }
   | { step: 'initialLetterSetup' }
   | { step: 'initialLetterPlaying'; config: InitialLetterConfig }
+  | { step: 'hintDeductionSetup' }
+  | { step: 'hintDeductionPlaying'; config: HintDeductionConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -78,6 +83,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'territory') setFlow({ step: 'territorySetup' });
     else if (id === 'betting') setFlow({ step: 'bettingSetup' });
     else if (id === 'initialLetter') setFlow({ step: 'initialLetterSetup' });
+    else if (id === 'hintDeduction') setFlow({ step: 'hintDeductionSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -166,6 +172,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <InitialLetterPlay
         config={flow.config}
         onFinish={(result) => handleFinish('initialLetter', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'hintDeductionSetup') {
+    return (
+      <HintDeductionSetup
+        onStart={(config) => setFlow({ step: 'hintDeductionPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'hintDeductionPlaying') {
+    return (
+      <HintDeductionPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('hintDeduction', flow.config.classId, flow.config.className, result)}
       />
     );
   }

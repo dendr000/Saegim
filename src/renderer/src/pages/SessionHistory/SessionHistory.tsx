@@ -10,7 +10,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   timeAttack: '타임어택 콤보',
   territory: '땅따먹기',
   betting: '베팅형',
-  initialLetter: '초성 퀴즈'
+  initialLetter: '초성 퀴즈',
+  hintDeduction: '힌트 차감형'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

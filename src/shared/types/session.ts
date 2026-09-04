@@ -4,7 +4,7 @@ export type SessionAnswerRecord = {
   correct: boolean;
 };
 
-export type GameMode = 'timeAttack' | 'territory' | 'betting' | 'initialLetter';
+export type GameMode = 'timeAttack' | 'territory' | 'betting' | 'initialLetter' | 'hintDeduction';
 
 export type SessionFinalScore = {
   participantId: string;

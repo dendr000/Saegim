@@ -2,23 +2,28 @@ import { useState } from 'react';
 import type { Question } from '../../../../shared/types/question';
 import AnswerConfirm from '../_shared/AnswerConfirm';
 import type { ParticipantRuntimeState } from './types';
-import { extractInitials } from './initials';
+import { maxHintsFor, revealHintText } from './hints';
+import { HINT_PENALTY_RATIO } from './scoring';
 
-type SimultaneousInitialsControlsProps = {
+type SimultaneousHintControlsProps = {
   question: Question;
   participants: ParticipantRuntimeState[];
+  hintsRevealed: number;
+  onRevealHint: () => void;
   onSubmit: (participantId: string, value: unknown) => void;
   onSkip: () => void;
   onEndSession: () => void;
 };
 
-function SimultaneousInitialsControls({
+function SimultaneousHintControls({
   question,
   participants,
+  hintsRevealed,
+  onRevealHint,
   onSubmit,
   onSkip,
   onEndSession
-}: SimultaneousInitialsControlsProps) {
+}: SimultaneousHintControlsProps) {
   const [searchText, setSearchText] = useState('');
   const [selectedParticipantId, setSelectedParticipantId] = useState('');
 
@@ -34,15 +39,31 @@ function SimultaneousInitialsControls({
   }
 
   if (question.type !== 'shortAnswer') {
-    return <p className="stage-text">이 유형은 초성 퀴즈에서 지원하지 않습니다.</p>;
+    return <p className="stage-text">이 유형은 힌트 차감형에서 지원하지 않습니다.</p>;
   }
+
+  const maxHints = maxHintsFor(question.payload.answer);
+  const hintExhausted = hintsRevealed >= maxHints;
+  const deductionPercent = Math.round(Math.min(1, hintsRevealed * HINT_PENALTY_RATIO) * 100);
 
   return (
     <div>
-      <p className="stage-text stage-muted">
-        {question.era} / {question.unit}
-      </p>
-      <p className="stage-question">{extractInitials(question.payload.answer)}</p>
+      <p className="stage-question">{question.payload.question}</p>
+
+      {hintsRevealed > 0 && (
+        <p className="stage-question" style={{ fontSize: '1.5rem' }}>
+          {revealHintText(question.payload.answer, hintsRevealed)}
+        </p>
+      )}
+
+      <div className="button-row">
+        <button type="button" className="stage-button" onClick={onRevealHint} disabled={hintExhausted}>
+          힌트 보기 ({hintsRevealed}/{maxHints}회 사용)
+        </button>
+        <span className="stage-text stage-muted">
+          {hintsRevealed > 0 ? `지금 정답 처리 시 점수 -${deductionPercent}%` : '아직 힌트를 쓰지 않았습니다'}
+        </span>
+      </div>
 
       <div className="stage-panel">
         <p className="stage-text">
@@ -123,4 +144,4 @@ function SimultaneousInitialsControls({
   );
 }
 
-export default SimultaneousInitialsControls;
+export default SimultaneousHintControls;
