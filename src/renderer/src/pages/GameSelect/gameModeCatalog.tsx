@@ -76,6 +76,15 @@ function LightbulbIcon() {
   );
 }
 
+function ShieldIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <path d="M12 3.5l7 3v5.2c0 4.6-3 7.6-7 8.8-4-1.2-7-4.2-7-8.8V6.5l7-3z" />
+      <path d="M9 12l2 2 4-4.5" />
+    </svg>
+  );
+}
+
 export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
   {
     id: 'timeAttack',
@@ -111,5 +120,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '문제 공개 전 점수를 걸고, 마지막 문제로 순위가 뒤집히는 팀 대항전.',
     category: 'team',
     icon: <CoinsIcon />
+  },
+  {
+    id: 'bossRaid',
+    title: '보스 레이드',
+    description: '반 전체가 힘을 합쳐 체력을 가진 보스를 상대하는 협동전.',
+    category: 'team',
+    icon: <ShieldIcon />
   }
 ];

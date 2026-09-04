@@ -14,6 +14,9 @@ import type { InitialLetterConfig } from '../../games/initialLetter/types';
 import HintDeductionSetup from '../../games/hintDeduction/HintDeductionSetup';
 import HintDeductionPlay from '../../games/hintDeduction/HintDeductionPlay';
 import type { HintDeductionConfig } from '../../games/hintDeduction/types';
+import BossRaidSetup from '../../games/bossRaid/BossRaidSetup';
+import BossRaidPlay from '../../games/bossRaid/BossRaidPlay';
+import type { BossRaidConfig } from '../../games/bossRaid/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -52,6 +55,8 @@ type FlowState =
   | { step: 'initialLetterPlaying'; config: InitialLetterConfig }
   | { step: 'hintDeductionSetup' }
   | { step: 'hintDeductionPlaying'; config: HintDeductionConfig }
+  | { step: 'bossRaidSetup' }
+  | { step: 'bossRaidPlaying'; config: BossRaidConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -84,6 +89,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'betting') setFlow({ step: 'bettingSetup' });
     else if (id === 'initialLetter') setFlow({ step: 'initialLetterSetup' });
     else if (id === 'hintDeduction') setFlow({ step: 'hintDeductionSetup' });
+    else if (id === 'bossRaid') setFlow({ step: 'bossRaidSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -190,6 +196,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <HintDeductionPlay
         config={flow.config}
         onFinish={(result) => handleFinish('hintDeduction', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'bossRaidSetup') {
+    return (
+      <BossRaidSetup
+        onStart={(config) => setFlow({ step: 'bossRaidPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'bossRaidPlaying') {
+    return (
+      <BossRaidPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('bossRaid', flow.config.classId, flow.config.className, result)}
       />
     );
   }

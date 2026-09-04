@@ -11,7 +11,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   territory: '땅따먹기',
   betting: '베팅형',
   initialLetter: '초성 퀴즈',
-  hintDeduction: '힌트 차감형'
+  hintDeduction: '힌트 차감형',
+  bossRaid: '보스 레이드'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {
