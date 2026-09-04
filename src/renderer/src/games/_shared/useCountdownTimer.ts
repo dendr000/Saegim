@@ -33,6 +33,12 @@ export function useCountdownTimer(durationSeconds: number, options: UseCountdown
 
   const pause = useCallback(() => setIsRunning(false), []);
   const resume = useCallback(() => setIsRunning(true), []);
+  // 교사 수동 개입용: 남은 시간을 설정된 제한시간으로 되돌리고 다시 흐르게 한다
+  // (쉬는 시간을 줬거나, 다시 기회를 주고 싶을 때).
+  const reset = useCallback(() => {
+    setRemainingSeconds(durationSeconds);
+    setIsRunning(true);
+  }, [durationSeconds]);
 
-  return { remainingSeconds, isRunning, pause, resume };
+  return { remainingSeconds, isRunning, pause, resume, reset };
 }

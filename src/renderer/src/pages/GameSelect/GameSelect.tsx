@@ -8,6 +8,9 @@ import type { TerritoryConfig } from '../../games/territory/types';
 import BettingSetup from '../../games/betting/BettingSetup';
 import BettingPlay from '../../games/betting/BettingPlay';
 import type { BettingConfig } from '../../games/betting/types';
+import InitialLetterSetup from '../../games/initialLetter/InitialLetterSetup';
+import InitialLetterPlay from '../../games/initialLetter/InitialLetterPlay';
+import type { InitialLetterConfig } from '../../games/initialLetter/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -24,6 +27,8 @@ type FlowState =
   | { step: 'territoryPlaying'; config: TerritoryConfig }
   | { step: 'bettingSetup' }
   | { step: 'bettingPlaying'; config: BettingConfig }
+  | { step: 'initialLetterSetup' }
+  | { step: 'initialLetterPlaying'; config: InitialLetterConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -101,6 +106,24 @@ function GameSelect({ onBack }: GameSelectProps) {
     );
   }
 
+  if (flow.step === 'initialLetterSetup') {
+    return (
+      <InitialLetterSetup
+        onStart={(config) => setFlow({ step: 'initialLetterPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'initialLetterPlaying') {
+    return (
+      <InitialLetterPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('initialLetter', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
   if (flow.step === 'result') {
     return <Result scores={flow.scores} onDone={() => setFlow({ step: 'select' })} />;
   }
@@ -120,6 +143,9 @@ function GameSelect({ onBack }: GameSelectProps) {
         </button>
         <button type="button" className="button-primary" onClick={() => setFlow({ step: 'bettingSetup' })}>
           베팅형
+        </button>
+        <button type="button" className="button-primary" onClick={() => setFlow({ step: 'initialLetterSetup' })}>
+          초성 퀴즈
         </button>
       </div>
     </div>

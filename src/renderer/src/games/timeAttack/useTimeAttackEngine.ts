@@ -186,5 +186,16 @@ export function useTimeAttackEngine(config: TimeAttackConfig) {
     dispatch({ type: 'ADJUST_SCORE', participantId, newScore });
   }
 
-  return { state, remainingSeconds: timer.remainingSeconds, submitAnswer, skipQuestion, endRound, adjustScore };
+  return {
+    state,
+    remainingSeconds: timer.remainingSeconds,
+    isTimerRunning: timer.isRunning,
+    pauseTimer: timer.pause,
+    resumeTimer: timer.resume,
+    resetTimer: timer.reset,
+    submitAnswer,
+    skipQuestion,
+    endRound,
+    adjustScore
+  };
 }

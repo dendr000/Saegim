@@ -9,7 +9,8 @@ type SessionHistoryProps = {
 const GAME_MODE_LABELS: Record<string, string> = {
   timeAttack: '타임어택 콤보',
   territory: '땅따먹기',
-  betting: '베팅형'
+  betting: '베팅형',
+  initialLetter: '초성 퀴즈'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

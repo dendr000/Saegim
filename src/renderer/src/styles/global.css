@@ -236,6 +236,10 @@ table td.wrap-text {
   margin: 0 auto;
 }
 
+.stage-muted {
+  color: var(--stage-text-muted);
+}
+
 .stage h1,
 .stage h2,
 .stage h3 {

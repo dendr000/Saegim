@@ -4,17 +4,19 @@ import AnswerReveal from '../_shared/AnswerReveal';
 import TimerControls from '../_shared/TimerControls';
 import { playCorrectSound, playWrongSound } from '../_shared/sounds';
 import type { GameFinishPayload } from '../_shared/types';
-import { useTimeAttackEngine } from './useTimeAttackEngine';
-import HotSeatControls from './HotSeatControls';
-import SimultaneousControls from './SimultaneousControls';
-import type { TimeAttackConfig } from './types';
+import { useTimeAttackEngine } from '../timeAttack/useTimeAttackEngine';
+import HotSeatInitialsControls from './HotSeatInitialsControls';
+import SimultaneousInitialsControls from './SimultaneousInitialsControls';
+import type { InitialLetterConfig } from './types';
 
-type TimeAttackPlayProps = {
-  config: TimeAttackConfig;
+type InitialLetterPlayProps = {
+  config: InitialLetterConfig;
   onFinish: (result: GameFinishPayload) => void;
 };
 
-function TimeAttackPlay({ config, onFinish }: TimeAttackPlayProps) {
+// 초성 퀴즈는 타임어택과 엔진이 완전히 동일하다(점수 계산·턴 진행·시간 제한) — 다른 건
+// 문제 프롬프트로 초성을 보여준다는 것뿐이라, useTimeAttackEngine을 그대로 재사용한다.
+function InitialLetterPlay({ config, onFinish }: InitialLetterPlayProps) {
   const {
     state,
     remainingSeconds,
@@ -61,7 +63,7 @@ function TimeAttackPlay({ config, onFinish }: TimeAttackPlayProps) {
   return (
     <div className="stage">
       <div className="stage-inner">
-        <h1 className="stage-title">타임어택 콤보</h1>
+        <h1 className="stage-title">초성 퀴즈</h1>
         <p className="stage-timer">남은 시간: {remainingSeconds}초</p>
         <TimerControls
           isRunning={isTimerRunning}
@@ -75,14 +77,14 @@ function TimeAttackPlay({ config, onFinish }: TimeAttackPlayProps) {
         )}
 
         {config.mode === 'hotSeat' && activeParticipant ? (
-          <HotSeatControls
+          <HotSeatInitialsControls
             question={state.currentQuestion}
             activeParticipantLabel={activeParticipant.label}
             onSubmit={(value) => submitAnswer(value, activeParticipant.id)}
             onEndTurn={endRound}
           />
         ) : (
-          <SimultaneousControls
+          <SimultaneousInitialsControls
             // 문제가 바뀔 때마다 검색어/선택된 학생을 초기화한다.
             key={state.currentQuestion.id}
             question={state.currentQuestion}
@@ -107,4 +109,4 @@ function TimeAttackPlay({ config, onFinish }: TimeAttackPlayProps) {
   );
 }
 
-export default TimeAttackPlay;
+export default InitialLetterPlay;
