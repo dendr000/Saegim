@@ -1,0 +1,14 @@
+[
+  {
+    "id": "sample-class1",
+    "name": "1학년 3반",
+    "students": [
+      { "id": "sample-s1", "number": 1, "name": "김민준" },
+      { "id": "sample-s2", "number": 2, "name": "이서연" }
+    ],
+    "teams": [
+      { "id": "sample-t1", "name": "1팀", "studentIds": ["sample-s1"] },
+      { "id": "sample-t2", "name": "2팀", "studentIds": ["sample-s2"] }
+    ]
+  }
+]

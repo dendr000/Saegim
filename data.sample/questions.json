@@ -1,0 +1,26 @@
+[
+  {
+    "id": "sample-q1",
+    "era": "삼국시대",
+    "unit": "고구려",
+    "difficulty": 1,
+    "type": "multipleChoice",
+    "payload": {
+      "question": "고구려의 시조는 누구인가?",
+      "choices": ["주몽", "온조", "박혁거세", "김수로"],
+      "answerIndex": 0
+    }
+  },
+  {
+    "id": "sample-q2",
+    "era": "조선후기",
+    "unit": "실학",
+    "difficulty": 2,
+    "type": "shortAnswer",
+    "payload": {
+      "question": "실학의 대표 학자는?",
+      "answer": "정약용",
+      "acceptableAnswers": ["다산"]
+    }
+  }
+]

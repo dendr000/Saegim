@@ -1,0 +1,165 @@
+import { useReducer } from 'react';
+import type { Answer } from '../_shared/types';
+import { useCountdownTimer } from '../_shared/useCountdownTimer';
+import { gradeAnswer } from '../_shared/gradeAnswer';
+import { calculateScoreForCorrectAnswer } from './scoring';
+import type { TimeAttackConfig, TimeAttackResult, TimeAttackState } from './types';
+
+type Action =
+  | { type: 'SUBMIT_ANSWER'; answer: Answer }
+  | { type: 'SKIP_QUESTION' }
+  | { type: 'TURN_TIME_EXPIRED' }
+  | { type: 'SESSION_TIME_EXPIRED' }
+  | { type: 'END_ROUND_MANUALLY' };
+
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function createInitialState(config: TimeAttackConfig): TimeAttackState {
+  const turnQuestionQueue = shuffle(config.questions);
+  const turnOrder = config.participants.map((participant) => participant.id);
+
+  return {
+    config,
+    participants: config.participants.map((participant) => ({
+      id: participant.id,
+      label: participant.label,
+      score: 0,
+      combo: 0
+    })),
+    turnQuestionQueue,
+    currentQuestion: turnQuestionQueue[0],
+    turnOrder,
+    turnIndex: 0,
+    activeParticipantId: config.mode === 'hotSeat' ? (turnOrder[0] ?? null) : null,
+    status: 'inProgress',
+    lastResult: null
+  };
+}
+
+// 다음 참가자의 턴을 새 문제 큐로 시작한다. 마지막 참가자였다면 게임을 끝낸다.
+function startNextTurnOrFinish(
+  state: TimeAttackState
+): Pick<TimeAttackState, 'status' | 'turnIndex' | 'activeParticipantId' | 'turnQuestionQueue' | 'currentQuestion'> {
+  const nextTurnIndex = state.turnIndex + 1;
+  if (nextTurnIndex >= state.turnOrder.length) {
+    return {
+      status: 'finished',
+      turnIndex: state.turnIndex,
+      activeParticipantId: state.activeParticipantId,
+      turnQuestionQueue: state.turnQuestionQueue,
+      currentQuestion: state.currentQuestion
+    };
+  }
+  const turnQuestionQueue = shuffle(state.config.questions);
+  return {
+    status: 'inProgress',
+    turnIndex: nextTurnIndex,
+    activeParticipantId: state.turnOrder[nextTurnIndex],
+    turnQuestionQueue,
+    currentQuestion: turnQuestionQueue[0]
+  };
+}
+
+function timeAttackReducer(state: TimeAttackState, action: Action): TimeAttackState {
+  if (state.status === 'finished') return state;
+
+  switch (action.type) {
+    case 'SUBMIT_ANSWER': {
+      const { correct, answerText } = gradeAnswer(state.currentQuestion, action.answer.value);
+      const participantId = action.answer.participantId;
+      const difficulty = state.currentQuestion.difficulty;
+
+      const participants = state.participants.map((participant) => {
+        if (participant.id !== participantId) return participant;
+        if (correct) {
+          return {
+            ...participant,
+            combo: participant.combo + 1,
+            score: participant.score + calculateScoreForCorrectAnswer(difficulty, participant.combo)
+          };
+        }
+        return { ...participant, combo: 0 };
+      });
+
+      const lastResult: TimeAttackResult = { participantId, correct, answerText };
+
+      // 핫시트: 정오답 관계없이 다음 문제. 동시 진행: 정답일 때만 다음 문제(오답이면 문제 유지).
+      const shouldAdvance = state.config.mode === 'hotSeat' || correct;
+      if (!shouldAdvance) {
+        return { ...state, participants, lastResult };
+      }
+
+      const remaining = state.turnQuestionQueue.slice(1);
+      if (remaining.length > 0) {
+        return { ...state, participants, turnQuestionQueue: remaining, currentQuestion: remaining[0], lastResult };
+      }
+
+      // 이번 범위(핫시트: 이 학생의 턴 / 동시 진행: 이번 세션)의 문제를 이미 다 냈다.
+      // 그대로 다시 섞어서 반복시키면 이미 아는 정답으로 무한히 점수를 쌓을 수 있어(악용 가능),
+      // 여기서 범위를 끝낸다.
+      if (state.config.mode === 'simultaneous') {
+        return { ...state, participants, status: 'finished', lastResult };
+      }
+      return { ...state, participants, ...startNextTurnOrFinish(state), lastResult };
+    }
+
+    case 'SKIP_QUESTION': {
+      const remaining = state.turnQuestionQueue.slice(1);
+      if (remaining.length > 0) {
+        return { ...state, turnQuestionQueue: remaining, currentQuestion: remaining[0], lastResult: null };
+      }
+      return { ...state, status: 'finished', lastResult: null };
+    }
+
+    case 'TURN_TIME_EXPIRED': {
+      return { ...state, ...startNextTurnOrFinish(state), lastResult: null };
+    }
+
+    case 'END_ROUND_MANUALLY': {
+      // 핫시트: 지금 학생 턴을 마치고 다음 학생으로. 동시 진행: 세션 자체를 종료.
+      if (state.config.mode === 'hotSeat') {
+        return { ...state, ...startNextTurnOrFinish(state), lastResult: null };
+      }
+      return { ...state, status: 'finished' };
+    }
+
+    case 'SESSION_TIME_EXPIRED': {
+      return { ...state, status: 'finished' };
+    }
+
+    default:
+      return state;
+  }
+}
+
+export function useTimeAttackEngine(config: TimeAttackConfig) {
+  const [state, dispatch] = useReducer(timeAttackReducer, config, createInitialState);
+
+  const timer = useCountdownTimer(config.durationSeconds, {
+    resetKey: config.mode === 'hotSeat' ? state.turnIndex : undefined,
+    onExpire: () => {
+      dispatch({ type: config.mode === 'hotSeat' ? 'TURN_TIME_EXPIRED' : 'SESSION_TIME_EXPIRED' });
+    }
+  });
+
+  function submitAnswer(value: unknown, participantId: string): void {
+    dispatch({ type: 'SUBMIT_ANSWER', answer: { participantId, value, submittedAt: Date.now() } });
+  }
+
+  function skipQuestion(): void {
+    dispatch({ type: 'SKIP_QUESTION' });
+  }
+
+  function endRound(): void {
+    dispatch({ type: 'END_ROUND_MANUALLY' });
+  }
+
+  return { state, remainingSeconds: timer.remainingSeconds, submitAnswer, skipQuestion, endRound };
+}

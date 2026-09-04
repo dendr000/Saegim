@@ -1,0 +1,13 @@
+appId: com.saegim.quiz
+productName: 새김
+files:
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!CLAUDE.md'
+win:
+  executableName: saegim
+  target: portable
+portable:
+  artifactName: saegim.exe
+npmRebuild: false

@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+
+# data/ 안의 실제 사용자 데이터(문항/학급/세션)는 git에 안 올린다.
+# 단, data/maps/는 지도 "프리셋" 에셋이라 커밋 대상이다 (CLAUDE.md 폴더 구조 참고).
+data/*
+!data/maps/
+
+*.log
+.DS_Store
