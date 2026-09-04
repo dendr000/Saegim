@@ -11,7 +11,8 @@ export type GameMode =
   | 'initialLetter'
   | 'hintDeduction'
   | 'bossRaid'
-  | 'questionBingo';
+  | 'questionBingo'
+  | 'bombPass';
 
 export type SessionFinalScore = {
   participantId: string;

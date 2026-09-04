@@ -85,6 +85,16 @@ function ShieldIcon() {
   );
 }
 
+function BombIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <circle cx="11" cy="14" r="7" />
+      <path d="M15.5 8.5l2-2" />
+      <path d="M17 4l2.5 1-1 2.5" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -150,5 +160,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '난이도가 미리 보이는 격자에서 칸을 점령하고, 줄을 완성하면 보너스를 받는 팀 대항전.',
     category: 'team',
     icon: <GridIcon />
+  },
+  {
+    id: 'bombPass',
+    title: '폭탄 돌리기',
+    description: '정답을 맞혀야 폭탄을 넘길 수 있는 대항전. 언제 터질지는 아무도 모른다.',
+    category: 'team',
+    icon: <BombIcon />
   }
 ];

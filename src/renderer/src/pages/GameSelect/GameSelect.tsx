@@ -20,6 +20,9 @@ import type { BossRaidConfig } from '../../games/bossRaid/types';
 import QuestionBingoSetup from '../../games/questionBingo/QuestionBingoSetup';
 import QuestionBingoPlay from '../../games/questionBingo/QuestionBingoPlay';
 import type { QuestionBingoConfig } from '../../games/questionBingo/types';
+import BombPassSetup from '../../games/bombPass/BombPassSetup';
+import BombPassPlay from '../../games/bombPass/BombPassPlay';
+import type { BombPassConfig } from '../../games/bombPass/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -62,6 +65,8 @@ type FlowState =
   | { step: 'bossRaidPlaying'; config: BossRaidConfig }
   | { step: 'questionBingoSetup' }
   | { step: 'questionBingoPlaying'; config: QuestionBingoConfig }
+  | { step: 'bombPassSetup' }
+  | { step: 'bombPassPlaying'; config: BombPassConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -96,6 +101,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'hintDeduction') setFlow({ step: 'hintDeductionSetup' });
     else if (id === 'bossRaid') setFlow({ step: 'bossRaidSetup' });
     else if (id === 'questionBingo') setFlow({ step: 'questionBingoSetup' });
+    else if (id === 'bombPass') setFlow({ step: 'bombPassSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -238,6 +244,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <QuestionBingoPlay
         config={flow.config}
         onFinish={(result) => handleFinish('questionBingo', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'bombPassSetup') {
+    return (
+      <BombPassSetup
+        onStart={(config) => setFlow({ step: 'bombPassPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'bombPassPlaying') {
+    return (
+      <BombPassPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('bombPass', flow.config.classId, flow.config.className, result)}
       />
     );
   }
