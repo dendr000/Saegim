@@ -1,7 +1,28 @@
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
+import { loadPreference, savePreference } from './localPreferences';
 
 export type ParticipantMode = 'student' | 'team';
 export type ParticipantOption = { id: string; label: string };
+
+export type PersistedParticipantSelection = { mode: ParticipantMode; selectedIds: string[] };
+
+// 게임 모드 + 학급 조합으로 기억한다 — 참가자 목록은 학급마다 다르므로 학급 단위로
+// 구분해야 한다("같은 배열로 다시 할 수도 있으니" 이전 선택을 되살린다).
+function storageKeyFor(gameMode: string, classId: string): string {
+  return `saegim:participants:${gameMode}:${classId}`;
+}
+
+export function loadParticipantSelection(gameMode: string, classId: string): PersistedParticipantSelection | null {
+  return loadPreference<PersistedParticipantSelection>(storageKeyFor(gameMode, classId));
+}
+
+export function saveParticipantSelection(
+  gameMode: string,
+  classId: string,
+  selection: PersistedParticipantSelection
+): void {
+  savePreference<PersistedParticipantSelection>(storageKeyFor(gameMode, classId), selection);
+}
 
 // 여러 학급을 가르치다 보면 학생 이름을 일일이 기억 못 할 수 있다 — 학생 개인
 // 대신 학급 관리에서 이미 이름 붙여둔 모둠("1조", "호랑이 조" 등) 단위로도

@@ -3,10 +3,13 @@ import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
 import QuestionFilterPicker, {
   applyQuestionFilter,
-  createEmptyQuestionFilter,
+  loadQuestionFilter,
+  saveQuestionFilter,
   type QuestionFilterState
 } from '../_shared/QuestionFilterPicker';
 import type { BettingConfig } from './types';
+
+const GAME_MODE = 'betting';
 
 type BettingSetupProps = {
   onStart: (config: BettingConfig) => void;
@@ -19,7 +22,7 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
   const [selectedClassId, setSelectedClassId] = useState('');
   const [totalRounds, setTotalRounds] = useState(5);
   const [startingScore, setStartingScore] = useState(1000);
-  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(() => loadQuestionFilter(GAME_MODE));
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -33,6 +36,11 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
     (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
   );
   const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
+
+  function handleQuestionFilterChange(nextFilter: QuestionFilterState): void {
+    setQuestionFilter(nextFilter);
+    saveQuestionFilter(GAME_MODE, nextFilter);
+  }
 
   const canStart = Boolean(selectedClass) && teams.length >= 2 && totalRounds >= 1 && eligibleQuestions.length > 0;
 
@@ -99,7 +107,11 @@ function BettingSetup({ onStart, onCancel }: BettingSetupProps) {
         </label>
       </div>
 
-      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <QuestionFilterPicker
+        questions={typeSupportedQuestions}
+        filter={questionFilter}
+        onChange={handleQuestionFilterChange}
+      />
       <p className="muted-text">
         사용 가능한 문제 {eligibleQuestions.length}개 (객관식/단답형만)
         {eligibleQuestions.length > 0 && eligibleQuestions.length < totalRounds

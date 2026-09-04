@@ -3,10 +3,13 @@ import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Difficulty, Question } from '../../../../shared/types/question';
 import QuestionFilterPicker, {
   applyQuestionFilter,
-  createEmptyQuestionFilter,
+  loadQuestionFilter,
+  saveQuestionFilter,
   type QuestionFilterState
 } from '../_shared/QuestionFilterPicker';
 import type { BingoGridSize, QuestionBingoConfig } from './types';
+
+const GAME_MODE = 'questionBingo';
 
 type QuestionBingoSetupProps = {
   onStart: (config: QuestionBingoConfig) => void;
@@ -21,7 +24,7 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [gridSize, setGridSize] = useState<BingoGridSize>(5);
-  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(() => loadQuestionFilter(GAME_MODE));
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -36,6 +39,11 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
     (question) => question.type === 'multipleChoice' || question.type === 'shortAnswer'
   );
   const eligibleQuestions = applyQuestionFilter(typeSupportedQuestions, questionFilter);
+
+  function handleQuestionFilterChange(nextFilter: QuestionFilterState): void {
+    setQuestionFilter(nextFilter);
+    saveQuestionFilter(GAME_MODE, nextFilter);
+  }
 
   const difficultyCounts = DIFFICULTIES.map((difficulty) => ({
     difficulty,
@@ -92,7 +100,11 @@ function QuestionBingoSetup({ onStart, onCancel }: QuestionBingoSetupProps) {
         ))}
       </div>
 
-      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <QuestionFilterPicker
+        questions={typeSupportedQuestions}
+        filter={questionFilter}
+        onChange={handleQuestionFilterChange}
+      />
 
       <div className="field-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
         <p style={{ margin: 0 }}>난이도별 사용 가능한 문제 수:</p>

@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react';
 import type { SchoolClass } from '../../../../shared/types/schoolClass';
 import type { Question } from '../../../../shared/types/question';
-import ParticipantPicker, { participantOptionsFor, type ParticipantMode } from '../_shared/ParticipantPicker';
+import ParticipantPicker, {
+  loadParticipantSelection,
+  participantOptionsFor,
+  saveParticipantSelection,
+  type ParticipantMode
+} from '../_shared/ParticipantPicker';
 import QuestionFilterPicker, {
   applyQuestionFilter,
-  createEmptyQuestionFilter,
+  loadQuestionFilter,
+  saveQuestionFilter,
   type QuestionFilterState
 } from '../_shared/QuestionFilterPicker';
 import type { InitialLetterConfig, InitialLetterMode } from './types';
+
+const GAME_MODE = 'initialLetter';
 
 type InitialLetterSetupProps = {
   onStart: (config: InitialLetterConfig) => void;
@@ -22,7 +30,7 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<InitialLetterMode>('hotSeat');
   const [durationSeconds, setDurationSeconds] = useState(60);
-  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(createEmptyQuestionFilter());
+  const [questionFilter, setQuestionFilter] = useState<QuestionFilterState>(() => loadQuestionFilter(GAME_MODE));
 
   useEffect(() => {
     window.classes.list().then(setClasses);
@@ -31,18 +39,53 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
 
   const selectedClass = classes.find((schoolClass) => schoolClass.id === selectedClassId) ?? null;
 
+  // 학급을 바꾸면 그 학급에서 지난번에 쓴 참가자 선택을 되살린다("같은 배열로 다시
+  // 할 수도 있으니") — 저장된 값이 없으면 기존처럼 전체 선택으로 시작한다.
   useEffect(() => {
-    setSelectedIds(new Set(participantOptionsFor(selectedClass, participantMode).map((option) => option.id)));
+    if (!selectedClassId) {
+      setSelectedIds(new Set());
+      return;
+    }
+    const persisted = loadParticipantSelection(GAME_MODE, selectedClassId);
+    if (persisted) {
+      const validIds = new Set(participantOptionsFor(selectedClass, persisted.mode).map((option) => option.id));
+      const restoredIds = persisted.selectedIds.filter((id) => validIds.has(id));
+      setParticipantMode(persisted.mode);
+      setSelectedIds(restoredIds.length > 0 ? new Set(restoredIds) : validIds);
+      return;
+    }
+    setParticipantMode('student');
+    setSelectedIds(new Set(participantOptionsFor(selectedClass, 'student').map((option) => option.id)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClassId, participantMode]);
+  }, [selectedClassId]);
+
+  function handleParticipantModeChange(nextMode: ParticipantMode): void {
+    setParticipantMode(nextMode);
+    const ids = new Set(participantOptionsFor(selectedClass, nextMode).map((option) => option.id));
+    setSelectedIds(ids);
+    if (selectedClassId) {
+      saveParticipantSelection(GAME_MODE, selectedClassId, { mode: nextMode, selectedIds: Array.from(ids) });
+    }
+  }
 
   function toggleParticipant(id: string): void {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
+      if (selectedClassId) {
+        saveParticipantSelection(GAME_MODE, selectedClassId, {
+          mode: participantMode,
+          selectedIds: Array.from(next)
+        });
+      }
       return next;
     });
+  }
+
+  function handleQuestionFilterChange(nextFilter: QuestionFilterState): void {
+    setQuestionFilter(nextFilter);
+    saveQuestionFilter(GAME_MODE, nextFilter);
   }
 
   // 초성 퀴즈는 단답형만 지원한다 — 객관식은 보기가 화면에 다 보여서 초성으로 맞히는
@@ -93,7 +136,7 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
         <ParticipantPicker
           schoolClass={selectedClass}
           mode={participantMode}
-          onModeChange={setParticipantMode}
+          onModeChange={handleParticipantModeChange}
           selectedIds={selectedIds}
           onToggle={toggleParticipant}
         />
@@ -123,7 +166,11 @@ function InitialLetterSetup({ onStart, onCancel }: InitialLetterSetupProps) {
         </label>
       </div>
 
-      <QuestionFilterPicker questions={typeSupportedQuestions} filter={questionFilter} onChange={setQuestionFilter} />
+      <QuestionFilterPicker
+        questions={typeSupportedQuestions}
+        filter={questionFilter}
+        onChange={handleQuestionFilterChange}
+      />
       <p className="muted-text">사용 가능한 문제 {eligibleQuestions.length}개 (단답형만)</p>
 
       <button

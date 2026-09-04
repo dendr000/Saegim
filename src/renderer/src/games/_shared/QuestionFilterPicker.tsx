@@ -1,4 +1,5 @@
 import type { Difficulty, Question } from '../../../../shared/types/question';
+import { loadPreference, savePreference } from './localPreferences';
 
 export type QuestionFilterState = {
   eras: Set<string>;
@@ -8,6 +9,32 @@ export type QuestionFilterState = {
 
 export function createEmptyQuestionFilter(): QuestionFilterState {
   return { eras: new Set(), units: new Set(), difficulties: new Set() };
+}
+
+type StoredQuestionFilter = { eras: string[]; units: string[]; difficulties: Difficulty[] };
+
+// 게임 모드별로 기억한다(학급과 무관 — "지난번에 쓴 시대/단원/난이도"는 문제은행
+// 내용에 대한 선택이지 학급에 대한 선택이 아니라서).
+function storageKeyFor(gameMode: string): string {
+  return `saegim:questionFilter:${gameMode}`;
+}
+
+export function loadQuestionFilter(gameMode: string): QuestionFilterState {
+  const stored = loadPreference<StoredQuestionFilter>(storageKeyFor(gameMode));
+  if (!stored) return createEmptyQuestionFilter();
+  return {
+    eras: new Set(stored.eras ?? []),
+    units: new Set(stored.units ?? []),
+    difficulties: new Set(stored.difficulties ?? [])
+  };
+}
+
+export function saveQuestionFilter(gameMode: string, filter: QuestionFilterState): void {
+  savePreference<StoredQuestionFilter>(storageKeyFor(gameMode), {
+    eras: Array.from(filter.eras),
+    units: Array.from(filter.units),
+    difficulties: Array.from(filter.difficulties)
+  });
 }
 
 // 각 목록이 비어있으면 "필터 없음"(전체 포함)으로 취급한다 — 아무것도 체크 안 한
