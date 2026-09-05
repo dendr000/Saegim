@@ -81,7 +81,7 @@ function ClassManager({ onBack }: ClassManagerProps) {
 
       <div className="class-toolbar">
         <input
-          placeholder="학급 이름 (예: 1학년 3반)"
+          placeholder="학급 이름"
           value={newClassName}
           onChange={(event) => setNewClassName(event.target.value)}
           onKeyDown={(event) => {

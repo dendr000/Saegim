@@ -116,6 +116,19 @@ textarea {
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* OS/브라우저 기본 포커스 링(테마 색이 그대로 새어 들어와 위화감이 있었음) 대신
+   앱 팔레트에 맞춘 은은한 남색 테두리+글로우로 통일한다. */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(44, 74, 110, 0.16);
 }
 
 table {
@@ -346,6 +359,16 @@ table td.wrap-text {
   border: 1px solid var(--stage-border);
   background: var(--stage-surface);
   color: var(--stage-text);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.stage input:focus,
+.stage select:focus {
+  border-color: var(--stage-primary);
+  box-shadow: 0 0 0 3px rgba(44, 74, 110, 0.22);
 }
 
 .stage-answer-reveal {
