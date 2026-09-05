@@ -74,10 +74,15 @@ export type QuestionType = Question['type'];
 
 export type QuestionDraft = Omit<Question, 'id'>;
 
-// 이번 단계에서 폼 + CSV 가져오기를 지원하는 유형
-export type SupportedQuestionType = 'multipleChoice' | 'shortAnswer';
+// 폼이 지원하는 유형(CSV 일괄가져오기는 이 중 객관식/단답형만 지원 —
+// 나머지는 구조가 CSV 한 행에 담기 어려워 폼으로만 추가한다).
+export type SupportedQuestionType = 'multipleChoice' | 'shortAnswer' | 'imageIdentify';
 
-export const SUPPORTED_QUESTION_TYPES: SupportedQuestionType[] = ['multipleChoice', 'shortAnswer'];
+export const SUPPORTED_QUESTION_TYPES: SupportedQuestionType[] = [
+  'multipleChoice',
+  'shortAnswer',
+  'imageIdentify'
+];
 
 function isDifficulty(value: unknown): value is Difficulty {
   return value === 1 || value === 2 || value === 3;
@@ -118,6 +123,13 @@ export function isQuestionDraft(value: unknown): value is QuestionDraft {
     }
     case 'shortAnswer': {
       return isNonEmptyString(payload.question) && isNonEmptyString(payload.answer);
+    }
+    case 'imageIdentify': {
+      return (
+        isNonEmptyString(payload.imageFileName) &&
+        isNonEmptyString(payload.question) &&
+        isNonEmptyString(payload.answer)
+      );
     }
     default:
       // 이번 단계에서는 아직 폼/CSV가 없는 유형이므로 저장을 허용하지 않는다.

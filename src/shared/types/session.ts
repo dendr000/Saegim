@@ -15,7 +15,8 @@ export type GameMode =
   | 'bombPass'
   | 'cardMatching'
   | 'goldenBell'
-  | 'chanceCard';
+  | 'chanceCard'
+  | 'mosaicReveal';
 
 export type SessionFinalScore = {
   participantId: string;

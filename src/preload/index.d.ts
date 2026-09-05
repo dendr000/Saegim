@@ -2,6 +2,7 @@ import type { SystemApi } from '../shared/types/system';
 import type { QuestionsApi } from '../shared/types/questionsApi';
 import type { ClassesApi } from '../shared/types/classesApi';
 import type { MapsApi } from '../shared/types/mapsApi';
+import type { ImagesApi } from '../shared/types/imagesApi';
 import type { SessionsApi } from '../shared/types/sessionsApi';
 
 declare global {
@@ -10,6 +11,7 @@ declare global {
     questions: QuestionsApi;
     classes: ClassesApi;
     maps: MapsApi;
+    images: ImagesApi;
     sessions: SessionsApi;
   }
 }

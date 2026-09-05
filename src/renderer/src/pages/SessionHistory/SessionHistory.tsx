@@ -17,7 +17,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   bombPass: '폭탄 돌리기',
   cardMatching: '카드 매칭',
   goldenBell: '골든벨 서바이벌',
-  chanceCard: '찬스카드'
+  chanceCard: '찬스카드',
+  mosaicReveal: '모자이크 공개'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

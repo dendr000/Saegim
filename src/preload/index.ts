@@ -5,6 +5,7 @@ import type { QuestionsApi } from '../shared/types/questionsApi';
 import type { SchoolClassDraft } from '../shared/types/schoolClass';
 import type { ClassesApi } from '../shared/types/classesApi';
 import type { MapsApi } from '../shared/types/mapsApi';
+import type { ImagesApi } from '../shared/types/imagesApi';
 import type { GameSessionDraft } from '../shared/types/session';
 import type { SessionsApi } from '../shared/types/sessionsApi';
 
@@ -32,6 +33,13 @@ const mapsApi: MapsApi = {
   get: (fileName: string) => ipcRenderer.invoke('maps:get', fileName)
 };
 
+const imagesApi: ImagesApi = {
+  list: () => ipcRenderer.invoke('images:list'),
+  get: (fileName: string) => ipcRenderer.invoke('images:get', fileName),
+  upload: (originalFileName: string, dataUrl: string) =>
+    ipcRenderer.invoke('images:upload', originalFileName, dataUrl)
+};
+
 const sessionsApi: SessionsApi = {
   save: (draft: GameSessionDraft) => ipcRenderer.invoke('sessions:save', draft),
   list: () => ipcRenderer.invoke('sessions:list')
@@ -43,6 +51,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('questions', questionsApi);
     contextBridge.exposeInMainWorld('classes', classesApi);
     contextBridge.exposeInMainWorld('maps', mapsApi);
+    contextBridge.exposeInMainWorld('images', imagesApi);
     contextBridge.exposeInMainWorld('sessions', sessionsApi);
   } catch (error) {
     console.error(error);
@@ -56,6 +65,8 @@ if (process.contextIsolated) {
   window.classes = classesApi;
   // @ts-expect-error contextIsolation이 꺼진 경우의 폴백
   window.maps = mapsApi;
+  // @ts-expect-error contextIsolation이 꺼진 경우의 폴백
+  window.images = imagesApi;
   // @ts-expect-error contextIsolation이 꺼진 경우의 폴백
   window.sessions = sessionsApi;
 }

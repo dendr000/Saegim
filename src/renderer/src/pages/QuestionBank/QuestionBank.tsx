@@ -14,7 +14,7 @@ function answerSummary(question: Question): string {
   if (question.type === 'multipleChoice') {
     return question.payload.choices[question.payload.answerIndex] ?? '';
   }
-  if (question.type === 'shortAnswer') {
+  if (question.type === 'shortAnswer' || question.type === 'imageIdentify') {
     return question.payload.answer;
   }
   return '(이 유형은 아직 편집 화면이 없음)';
@@ -141,7 +141,9 @@ function QuestionBank({ onBack }: QuestionBankProps) {
                   <td className="wrap-text">{answerQuestionText(question)}</td>
                   <td className="wrap-text">{answerSummary(question)}</td>
                   <td>
-                    {(question.type === 'multipleChoice' || question.type === 'shortAnswer') && (
+                    {(question.type === 'multipleChoice' ||
+                      question.type === 'shortAnswer' ||
+                      question.type === 'imageIdentify') && (
                       <button type="button" onClick={() => setFormMode({ kind: 'edit', question })}>
                         수정
                       </button>

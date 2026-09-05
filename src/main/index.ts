@@ -6,6 +6,7 @@ import { registerSystemIpc } from './ipc/system';
 import { registerQuestionsIpc } from './ipc/questions';
 import { registerClassesIpc } from './ipc/classes';
 import { registerMapsIpc } from './ipc/maps';
+import { registerImagesIpc } from './ipc/images';
 import { registerSessionsIpc } from './ipc/sessions';
 
 // userData 경로 재지정은 whenReady 이전에 끝나야 한다.
@@ -45,6 +46,7 @@ app.whenReady().then(() => {
   registerQuestionsIpc();
   registerClassesIpc();
   registerMapsIpc();
+  registerImagesIpc();
   registerSessionsIpc();
   createWindow();
 

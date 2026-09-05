@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 import type { Question, QuestionDraft, SupportedQuestionType } from '../../../../shared/types/question';
 import { QUESTION_TYPE_LABELS } from '../../../../shared/questionCsv';
 
@@ -12,7 +12,7 @@ const EMPTY_CHOICES = ['', '', '', ''];
 
 function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
   const [type, setType] = useState<SupportedQuestionType>(
-    initial?.type === 'shortAnswer' ? 'shortAnswer' : 'multipleChoice'
+    initial?.type === 'shortAnswer' || initial?.type === 'imageIdentify' ? initial.type : 'multipleChoice'
   );
   const [era, setEra] = useState(initial?.era ?? '');
   const [unit, setUnit] = useState(initial?.unit ?? '');
@@ -26,12 +26,44 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
     initial?.type === 'multipleChoice' ? initial.payload.answerIndex : 0
   );
 
-  const [answer, setAnswer] = useState(initial?.type === 'shortAnswer' ? initial.payload.answer : '');
+  const [answer, setAnswer] = useState(
+    initial?.type === 'shortAnswer' || initial?.type === 'imageIdentify' ? initial.payload.answer : ''
+  );
   const [acceptableAnswersText, setAcceptableAnswersText] = useState(
     initial?.type === 'shortAnswer' ? (initial.payload.acceptableAnswers ?? []).join(', ') : ''
   );
 
+  const [imageFileName] = useState(initial?.type === 'imageIdentify' ? initial.payload.imageFileName : '');
+  // 새로 고른 파일의 data URL — 실제 업로드는 제출 시점에 한다(고르기만 하고 취소할 수도 있어서).
+  const [pendingImageDataUrl, setPendingImageDataUrl] = useState<string | null>(null);
+  const [pendingImageOriginalName, setPendingImageOriginalName] = useState('');
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initial?.type === 'imageIdentify') {
+      window.images
+        .get(initial.payload.imageFileName)
+        .then(setImagePreviewUrl)
+        .catch(() => setImagePreviewUrl(null));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleImageFileChange(event: ChangeEvent<HTMLInputElement>): void {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setPendingImageDataUrl(dataUrl);
+      setPendingImageOriginalName(file.name);
+      setImagePreviewUrl(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }
 
   function padChoices(source: string[]): string[] {
     const next = [...source];
@@ -45,13 +77,38 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
     setChoices(next);
   }
 
-  function handleSubmit(event: FormEvent): void {
+  async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault();
     setError(null);
 
     if (!era.trim()) return setError('시대를 입력하세요.');
     if (!unit.trim()) return setError('단원을 입력하세요.');
     if (!question.trim()) return setError('질문을 입력하세요.');
+
+    if (type === 'imageIdentify') {
+      if (!answer.trim()) return setError('정답을 입력하세요.');
+      if (!pendingImageDataUrl && !imageFileName) return setError('이미지를 선택하세요.');
+
+      setIsSubmitting(true);
+      try {
+        const finalImageFileName = pendingImageDataUrl
+          ? await window.images.upload(pendingImageOriginalName, pendingImageDataUrl)
+          : imageFileName;
+
+        onSubmit({
+          era: era.trim(),
+          unit: unit.trim(),
+          difficulty,
+          type: 'imageIdentify',
+          payload: { imageFileName: finalImageFileName, question: question.trim(), answer: answer.trim() }
+        });
+      } catch (uploadError) {
+        setError(uploadError instanceof Error ? uploadError.message : '이미지 업로드에 실패했습니다.');
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
 
     if (type === 'multipleChoice') {
       const filledChoices = choices.map((choice) => choice.trim()).filter((choice) => choice.length > 0);
@@ -161,6 +218,23 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
             </div>
           ))}
         </div>
+      ) : type === 'imageIdentify' ? (
+        <div style={{ marginBottom: '0.5rem' }}>
+          <label style={{ display: 'block' }}>이미지:</label>
+          <input type="file" accept="image/*" onChange={handleImageFileChange} />
+          {imagePreviewUrl && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <img
+                src={imagePreviewUrl}
+                alt="미리보기"
+                style={{ maxWidth: '240px', maxHeight: '240px', display: 'block' }}
+              />
+            </div>
+          )}
+          <label style={{ display: 'block', marginTop: '0.5rem' }}>
+            정답: <input value={answer} onChange={(event) => setAnswer(event.target.value)} />
+          </label>
+        </div>
       ) : (
         <div style={{ marginBottom: '0.5rem' }}>
           <label style={{ display: 'block' }}>
@@ -177,8 +251,8 @@ function QuestionForm({ initial, onSubmit, onCancel }: QuestionFormProps) {
         </div>
       )}
 
-      <button type="submit" className="button-primary">
-        {initial ? '수정 저장' : '추가'}
+      <button type="submit" className="button-primary" disabled={isSubmitting}>
+        {isSubmitting ? '저장 중...' : initial ? '수정 저장' : '추가'}
       </button>{' '}
       <button type="button" onClick={onCancel}>
         취소

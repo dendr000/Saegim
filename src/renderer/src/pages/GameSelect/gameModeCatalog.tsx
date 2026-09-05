@@ -122,6 +122,16 @@ function ChanceCardIcon() {
   );
 }
 
+function MosaicIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <rect x="3.5" y="4.5" width="17" height="15" rx="1.5" />
+      <path d="M8 9.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+      <path d="M4.5 16.5l4.5-5 3.5 4 3-3.5 4.5 4.5" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -215,5 +225,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '정답 시 점수 훔치기·순서 뒤집기·방어막 카드를 무작위로 얻는 팀 대항전.',
     category: 'team',
     icon: <ChanceCardIcon />
+  },
+  {
+    id: 'mosaicReveal',
+    title: '모자이크 공개',
+    description: '흐린 사진이 점점 선명해지는 개인전. 빨리 맞힐수록 점수가 높다.',
+    category: 'solo',
+    icon: <MosaicIcon />
   }
 ];

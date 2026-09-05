@@ -32,6 +32,9 @@ import type { GoldenBellConfig } from '../../games/goldenBell/types';
 import ChanceCardSetup from '../../games/chanceCard/ChanceCardSetup';
 import ChanceCardPlay from '../../games/chanceCard/ChanceCardPlay';
 import type { ChanceCardConfig } from '../../games/chanceCard/types';
+import MosaicRevealSetup from '../../games/mosaicReveal/MosaicRevealSetup';
+import MosaicRevealPlay from '../../games/mosaicReveal/MosaicRevealPlay';
+import type { MosaicRevealConfig } from '../../games/mosaicReveal/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -82,6 +85,8 @@ type FlowState =
   | { step: 'goldenBellPlaying'; config: GoldenBellConfig }
   | { step: 'chanceCardSetup' }
   | { step: 'chanceCardPlaying'; config: ChanceCardConfig }
+  | { step: 'mosaicRevealSetup' }
+  | { step: 'mosaicRevealPlaying'; config: MosaicRevealConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -120,6 +125,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'cardMatching') setFlow({ step: 'cardMatchingSetup' });
     else if (id === 'goldenBell') setFlow({ step: 'goldenBellSetup' });
     else if (id === 'chanceCard') setFlow({ step: 'chanceCardSetup' });
+    else if (id === 'mosaicReveal') setFlow({ step: 'mosaicRevealSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -334,6 +340,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <ChanceCardPlay
         config={flow.config}
         onFinish={(result) => handleFinish('chanceCard', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'mosaicRevealSetup') {
+    return (
+      <MosaicRevealSetup
+        onStart={(config) => setFlow({ step: 'mosaicRevealPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'mosaicRevealPlaying') {
+    return (
+      <MosaicRevealPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('mosaicReveal', flow.config.classId, flow.config.className, result)}
       />
     );
   }
