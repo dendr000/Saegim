@@ -42,14 +42,14 @@ function RosterPasteImport({ onImport, onClose }: RosterPasteImportProps) {
       </div>
 
       {preview.length > 0 && (
-        <ul>
+        <div className="roster-preview">
           {preview.map((entry, index) => (
-            <li key={index}>
-              {entry.number !== undefined ? `${entry.number}. ` : ''}
+            <span key={index} className="roster-preview-pill" style={{ animationDelay: `${index * 0.02}s` }}>
+              {entry.number !== undefined && <strong>{entry.number}</strong>}
               {entry.name}
-            </li>
+            </span>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

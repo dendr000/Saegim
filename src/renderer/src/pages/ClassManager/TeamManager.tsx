@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Student, Team } from '../../../../shared/types/schoolClass';
+import { PlusIcon, ShuffleIcon, TrashIcon } from './icons';
 
 type TeamManagerProps = {
   students: Student[];
@@ -58,12 +59,22 @@ function TeamManager({ students, teams, onChange }: TeamManagerProps) {
 
   return (
     <div>
-      <h3>팀 구성</h3>
+      <div className="section-header">
+        <h3>팀 구성</h3>
+        {teams.length > 0 && <span className="section-count">{teams.length}개 팀</span>}
+      </div>
 
       <div className="field-row">
-        <input placeholder="팀 이름" value={newTeamName} onChange={(event) => setNewTeamName(event.target.value)} />
-        <button type="button" className="button-primary" onClick={handleAddTeam}>
-          팀 추가
+        <input
+          placeholder="팀 이름"
+          value={newTeamName}
+          onChange={(event) => setNewTeamName(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') handleAddTeam();
+          }}
+        />
+        <button type="button" className="button-primary button-lg icon-button" onClick={handleAddTeam}>
+          <PlusIcon /> 팀 추가
         </button>
         <input
           type="number"
@@ -72,26 +83,37 @@ function TeamManager({ students, teams, onChange }: TeamManagerProps) {
           onChange={(event) => setAutoTeamCount(event.target.value)}
           style={{ width: '3rem' }}
         />
-        <button type="button" onClick={handleAutoSplit} disabled={students.length === 0}>
-          팀으로 자동 나누기
+        <button
+          type="button"
+          className="icon-button"
+          onClick={handleAutoSplit}
+          disabled={students.length === 0}
+        >
+          <ShuffleIcon /> 팀으로 자동 나누기
         </button>
       </div>
 
       {teams.length > 0 && (
-        <ul>
-          {teams.map((team) => (
-            <li key={team.id}>
-              {team.name} ({team.studentIds.length}명){' '}
-              <button type="button" className="button-danger" onClick={() => handleRemoveTeam(team.id)}>
-                삭제
+        <div className="team-grid">
+          {teams.map((team, index) => (
+            <div key={team.id} className="team-card" style={{ animationDelay: `${index * 0.05}s` }}>
+              <span className="team-card-name">{team.name}</span>
+              <span className="team-card-count">{team.studentIds.length}명</span>
+              <button
+                type="button"
+                className="team-card-delete"
+                onClick={() => handleRemoveTeam(team.id)}
+                aria-label={`${team.name} 삭제`}
+              >
+                <TrashIcon />
               </button>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       <div className="table-scroll">
-        <table className="data-table">
+        <table className="data-table roster-table">
           <thead>
             <tr>
               <th>학생</th>
