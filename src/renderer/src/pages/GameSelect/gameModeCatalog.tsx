@@ -104,6 +104,15 @@ function CardMatchIcon() {
   );
 }
 
+function BellIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <path d="M12 3.5c-1 0-1.8.8-1.8 1.8v.6C7.8 6.6 6 8.9 6 11.6v3.4l-1.5 2.5h15L18 15v-3.4c0-2.7-1.8-5-4.2-5.7v-.6c0-1-.8-1.8-1.8-1.8z" />
+      <path d="M10 19.5a2 2 0 0 0 4 0" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -183,5 +192,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '용어와 정의 카드를 뒤집어 짝을 맞히는 개념 학습형 게임.',
     category: 'concept',
     icon: <CardMatchIcon />
+  },
+  {
+    id: 'goldenBell',
+    title: '골든벨 서바이벌',
+    description: '틀리면 탈락하는 전원 참여형 서바이벌. 부활권으로 한 번은 봐줄 수 있다.',
+    category: 'solo',
+    icon: <BellIcon />
   }
 ];

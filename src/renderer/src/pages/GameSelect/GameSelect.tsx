@@ -26,6 +26,9 @@ import type { BombPassConfig } from '../../games/bombPass/types';
 import CardMatchingSetup from '../../games/cardMatching/CardMatchingSetup';
 import CardMatchingPlay from '../../games/cardMatching/CardMatchingPlay';
 import type { CardMatchingConfig } from '../../games/cardMatching/types';
+import GoldenBellSetup from '../../games/goldenBell/GoldenBellSetup';
+import GoldenBellPlay from '../../games/goldenBell/GoldenBellPlay';
+import type { GoldenBellConfig } from '../../games/goldenBell/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -72,6 +75,8 @@ type FlowState =
   | { step: 'bombPassPlaying'; config: BombPassConfig }
   | { step: 'cardMatchingSetup' }
   | { step: 'cardMatchingPlaying'; config: CardMatchingConfig }
+  | { step: 'goldenBellSetup' }
+  | { step: 'goldenBellPlaying'; config: GoldenBellConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -108,6 +113,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'questionBingo') setFlow({ step: 'questionBingoSetup' });
     else if (id === 'bombPass') setFlow({ step: 'bombPassSetup' });
     else if (id === 'cardMatching') setFlow({ step: 'cardMatchingSetup' });
+    else if (id === 'goldenBell') setFlow({ step: 'goldenBellSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -286,6 +292,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <CardMatchingPlay
         config={flow.config}
         onFinish={(result) => handleFinish('cardMatching', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'goldenBellSetup') {
+    return (
+      <GoldenBellSetup
+        onStart={(config) => setFlow({ step: 'goldenBellPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'goldenBellPlaying') {
+    return (
+      <GoldenBellPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('goldenBell', flow.config.classId, flow.config.className, result)}
       />
     );
   }

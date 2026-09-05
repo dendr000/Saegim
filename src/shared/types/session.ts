@@ -13,7 +13,8 @@ export type GameMode =
   | 'bossRaid'
   | 'questionBingo'
   | 'bombPass'
-  | 'cardMatching';
+  | 'cardMatching'
+  | 'goldenBell';
 
 export type SessionFinalScore = {
   participantId: string;
