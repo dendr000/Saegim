@@ -14,7 +14,8 @@ export type GameMode =
   | 'questionBingo'
   | 'bombPass'
   | 'cardMatching'
-  | 'goldenBell';
+  | 'goldenBell'
+  | 'chanceCard';
 
 export type SessionFinalScore = {
   participantId: string;

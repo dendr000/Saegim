@@ -16,7 +16,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   questionBingo: '문제 빙고',
   bombPass: '폭탄 돌리기',
   cardMatching: '카드 매칭',
-  goldenBell: '골든벨 서바이벌'
+  goldenBell: '골든벨 서바이벌',
+  chanceCard: '찬스카드'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

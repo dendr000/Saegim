@@ -29,6 +29,9 @@ import type { CardMatchingConfig } from '../../games/cardMatching/types';
 import GoldenBellSetup from '../../games/goldenBell/GoldenBellSetup';
 import GoldenBellPlay from '../../games/goldenBell/GoldenBellPlay';
 import type { GoldenBellConfig } from '../../games/goldenBell/types';
+import ChanceCardSetup from '../../games/chanceCard/ChanceCardSetup';
+import ChanceCardPlay from '../../games/chanceCard/ChanceCardPlay';
+import type { ChanceCardConfig } from '../../games/chanceCard/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -77,6 +80,8 @@ type FlowState =
   | { step: 'cardMatchingPlaying'; config: CardMatchingConfig }
   | { step: 'goldenBellSetup' }
   | { step: 'goldenBellPlaying'; config: GoldenBellConfig }
+  | { step: 'chanceCardSetup' }
+  | { step: 'chanceCardPlaying'; config: ChanceCardConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -114,6 +119,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'bombPass') setFlow({ step: 'bombPassSetup' });
     else if (id === 'cardMatching') setFlow({ step: 'cardMatchingSetup' });
     else if (id === 'goldenBell') setFlow({ step: 'goldenBellSetup' });
+    else if (id === 'chanceCard') setFlow({ step: 'chanceCardSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -310,6 +316,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <GoldenBellPlay
         config={flow.config}
         onFinish={(result) => handleFinish('goldenBell', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'chanceCardSetup') {
+    return (
+      <ChanceCardSetup
+        onStart={(config) => setFlow({ step: 'chanceCardPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'chanceCardPlaying') {
+    return (
+      <ChanceCardPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('chanceCard', flow.config.classId, flow.config.className, result)}
       />
     );
   }

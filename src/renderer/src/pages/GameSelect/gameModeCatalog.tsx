@@ -113,6 +113,15 @@ function BellIcon() {
   );
 }
 
+function ChanceCardIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <rect x="5" y="4" width="14" height="16" rx="1.5" />
+      <path d="M12 8.5l1.2 2.4 2.6.4-1.9 1.9.45 2.6-2.35-1.25-2.35 1.25.45-2.6-1.9-1.9 2.6-.4z" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -199,5 +208,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '틀리면 탈락하는 전원 참여형 서바이벌. 부활권으로 한 번은 봐줄 수 있다.',
     category: 'solo',
     icon: <BellIcon />
+  },
+  {
+    id: 'chanceCard',
+    title: '찬스카드',
+    description: '정답 시 점수 훔치기·순서 뒤집기·방어막 카드를 무작위로 얻는 팀 대항전.',
+    category: 'team',
+    icon: <ChanceCardIcon />
   }
 ];
