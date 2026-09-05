@@ -18,7 +18,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   cardMatching: '카드 매칭',
   goldenBell: '골든벨 서바이벌',
   chanceCard: '찬스카드',
-  mosaicReveal: '모자이크 공개'
+  mosaicReveal: '모자이크 공개',
+  categoryDrag: '분류 드래그'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

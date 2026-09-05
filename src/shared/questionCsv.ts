@@ -16,7 +16,8 @@ export const QUESTION_CSV_HEADERS = [
 export const QUESTION_TYPE_LABELS: Record<SupportedQuestionType, string> = {
   multipleChoice: '객관식',
   shortAnswer: '단답형',
-  imageIdentify: '이미지 판별'
+  imageIdentify: '이미지 판별',
+  categorize: '분류'
 };
 
 const LABEL_TO_TYPE: Record<string, SupportedQuestionType> = {

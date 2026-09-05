@@ -16,7 +16,8 @@ export type GameMode =
   | 'cardMatching'
   | 'goldenBell'
   | 'chanceCard'
-  | 'mosaicReveal';
+  | 'mosaicReveal'
+  | 'categoryDrag';
 
 export type SessionFinalScore = {
   participantId: string;

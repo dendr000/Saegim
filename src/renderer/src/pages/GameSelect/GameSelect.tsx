@@ -35,6 +35,9 @@ import type { ChanceCardConfig } from '../../games/chanceCard/types';
 import MosaicRevealSetup from '../../games/mosaicReveal/MosaicRevealSetup';
 import MosaicRevealPlay from '../../games/mosaicReveal/MosaicRevealPlay';
 import type { MosaicRevealConfig } from '../../games/mosaicReveal/types';
+import CategorizeSetup from '../../games/categoryDrag/CategorizeSetup';
+import CategorizePlay from '../../games/categoryDrag/CategorizePlay';
+import type { CategorizeConfig } from '../../games/categoryDrag/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -87,6 +90,8 @@ type FlowState =
   | { step: 'chanceCardPlaying'; config: ChanceCardConfig }
   | { step: 'mosaicRevealSetup' }
   | { step: 'mosaicRevealPlaying'; config: MosaicRevealConfig }
+  | { step: 'categorizeSetup' }
+  | { step: 'categorizePlaying'; config: CategorizeConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -126,6 +131,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'goldenBell') setFlow({ step: 'goldenBellSetup' });
     else if (id === 'chanceCard') setFlow({ step: 'chanceCardSetup' });
     else if (id === 'mosaicReveal') setFlow({ step: 'mosaicRevealSetup' });
+    else if (id === 'categoryDrag') setFlow({ step: 'categorizeSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -358,6 +364,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <MosaicRevealPlay
         config={flow.config}
         onFinish={(result) => handleFinish('mosaicReveal', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'categorizeSetup') {
+    return (
+      <CategorizeSetup
+        onStart={(config) => setFlow({ step: 'categorizePlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'categorizePlaying') {
+    return (
+      <CategorizePlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('categoryDrag', flow.config.classId, flow.config.className, result)}
       />
     );
   }

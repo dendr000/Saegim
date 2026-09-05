@@ -17,6 +17,9 @@ function answerSummary(question: Question): string {
   if (question.type === 'shortAnswer' || question.type === 'imageIdentify') {
     return question.payload.answer;
   }
+  if (question.type === 'categorize') {
+    return question.payload.categories.join(' / ');
+  }
   return '(이 유형은 아직 편집 화면이 없음)';
 }
 
@@ -143,7 +146,8 @@ function QuestionBank({ onBack }: QuestionBankProps) {
                   <td>
                     {(question.type === 'multipleChoice' ||
                       question.type === 'shortAnswer' ||
-                      question.type === 'imageIdentify') && (
+                      question.type === 'imageIdentify' ||
+                      question.type === 'categorize') && (
                       <button type="button" onClick={() => setFormMode({ kind: 'edit', question })}>
                         수정
                       </button>

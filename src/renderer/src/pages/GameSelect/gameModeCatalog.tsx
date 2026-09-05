@@ -132,6 +132,17 @@ function MosaicIcon() {
   );
 }
 
+function CategoryDragIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1" />
+      <path d="M10.5 7h4a2 2 0 0 1 2 2v4" strokeDasharray="2 2" />
+      <path d="M14.5 11.5l2 1.5-2 1.5" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -232,5 +243,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '흐린 사진이 점점 선명해지는 개인전. 빨리 맞힐수록 점수가 높다.',
     category: 'solo',
     icon: <MosaicIcon />
+  },
+  {
+    id: 'categoryDrag',
+    title: '분류 드래그',
+    description: '항목을 끌어다 알맞은 카테고리 상자에 놓는 개념 학습형 게임.',
+    category: 'concept',
+    icon: <CategoryDragIcon />
   }
 ];

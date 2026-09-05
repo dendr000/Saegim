@@ -62,13 +62,25 @@ export type TimelineOrderQuestion = QuestionBase & {
   };
 };
 
+export type CategorizeItem = { id: string; label: string; categoryIndex: number };
+
+export type CategorizeQuestion = QuestionBase & {
+  type: 'categorize';
+  payload: {
+    question: string;
+    categories: string[];
+    items: CategorizeItem[];
+  };
+};
+
 export type Question =
   | MultipleChoiceQuestion
   | ShortAnswerQuestion
   | InitialLetterQuestion
   | SourceReadingQuestion
   | ImageIdentifyQuestion
-  | TimelineOrderQuestion;
+  | TimelineOrderQuestion
+  | CategorizeQuestion;
 
 export type QuestionType = Question['type'];
 
@@ -76,12 +88,13 @@ export type QuestionDraft = Omit<Question, 'id'>;
 
 // 폼이 지원하는 유형(CSV 일괄가져오기는 이 중 객관식/단답형만 지원 —
 // 나머지는 구조가 CSV 한 행에 담기 어려워 폼으로만 추가한다).
-export type SupportedQuestionType = 'multipleChoice' | 'shortAnswer' | 'imageIdentify';
+export type SupportedQuestionType = 'multipleChoice' | 'shortAnswer' | 'imageIdentify' | 'categorize';
 
 export const SUPPORTED_QUESTION_TYPES: SupportedQuestionType[] = [
   'multipleChoice',
   'shortAnswer',
-  'imageIdentify'
+  'imageIdentify',
+  'categorize'
 ];
 
 function isDifficulty(value: unknown): value is Difficulty {
@@ -130,6 +143,26 @@ export function isQuestionDraft(value: unknown): value is QuestionDraft {
         isNonEmptyString(payload.question) &&
         isNonEmptyString(payload.answer)
       );
+    }
+    case 'categorize': {
+      if (!isNonEmptyString(payload.question)) return false;
+      const categories = payload.categories;
+      if (!Array.isArray(categories) || categories.length < 2) return false;
+      if (!categories.every((category) => isNonEmptyString(category))) return false;
+
+      const items = payload.items;
+      if (!Array.isArray(items) || items.length < 2) return false;
+      return items.every((item) => {
+        if (typeof item !== 'object' || item === null) return false;
+        const candidate = item as Record<string, unknown>;
+        return (
+          isNonEmptyString(candidate.id) &&
+          isNonEmptyString(candidate.label) &&
+          typeof candidate.categoryIndex === 'number' &&
+          candidate.categoryIndex >= 0 &&
+          candidate.categoryIndex < categories.length
+        );
+      });
     }
     default:
       // 이번 단계에서는 아직 폼/CSV가 없는 유형이므로 저장을 허용하지 않는다.
