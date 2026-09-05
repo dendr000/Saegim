@@ -14,7 +14,8 @@ const GAME_MODE_LABELS: Record<string, string> = {
   hintDeduction: '힌트 차감형',
   bossRaid: '보스 레이드',
   questionBingo: '문제 빙고',
-  bombPass: '폭탄 돌리기'
+  bombPass: '폭탄 돌리기',
+  cardMatching: '카드 매칭'
 };
 
 function SessionHistory({ onBack }: SessionHistoryProps) {

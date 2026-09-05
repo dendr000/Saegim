@@ -12,7 +12,8 @@ export type GameMode =
   | 'hintDeduction'
   | 'bossRaid'
   | 'questionBingo'
-  | 'bombPass';
+  | 'bombPass'
+  | 'cardMatching';
 
 export type SessionFinalScore = {
   participantId: string;

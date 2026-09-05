@@ -95,6 +95,15 @@ function BombIcon() {
   );
 }
 
+function CardMatchIcon() {
+  return (
+    <svg {...iconProps} className="mode-card-icon">
+      <rect x="3" y="6" width="8" height="12" rx="1.2" transform="rotate(-8 7 12)" />
+      <rect x="13" y="6" width="8" height="12" rx="1.2" transform="rotate(8 17 12)" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg {...iconProps} className="mode-card-icon">
@@ -167,5 +176,12 @@ export const GAME_MODE_CATALOG: GameModeCatalogEntry[] = [
     description: '정답을 맞혀야 폭탄을 넘길 수 있는 대항전. 언제 터질지는 아무도 모른다.',
     category: 'team',
     icon: <BombIcon />
+  },
+  {
+    id: 'cardMatching',
+    title: '카드 매칭',
+    description: '용어와 정의 카드를 뒤집어 짝을 맞히는 개념 학습형 게임.',
+    category: 'concept',
+    icon: <CardMatchIcon />
   }
 ];

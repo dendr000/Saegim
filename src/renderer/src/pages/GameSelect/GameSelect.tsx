@@ -23,6 +23,9 @@ import type { QuestionBingoConfig } from '../../games/questionBingo/types';
 import BombPassSetup from '../../games/bombPass/BombPassSetup';
 import BombPassPlay from '../../games/bombPass/BombPassPlay';
 import type { BombPassConfig } from '../../games/bombPass/types';
+import CardMatchingSetup from '../../games/cardMatching/CardMatchingSetup';
+import CardMatchingPlay from '../../games/cardMatching/CardMatchingPlay';
+import type { CardMatchingConfig } from '../../games/cardMatching/types';
 import type { GameFinishPayload, ParticipantScore } from '../../games/_shared/types';
 import type { GameMode } from '../../../../shared/types/session';
 import Result from '../Result/Result';
@@ -67,6 +70,8 @@ type FlowState =
   | { step: 'questionBingoPlaying'; config: QuestionBingoConfig }
   | { step: 'bombPassSetup' }
   | { step: 'bombPassPlaying'; config: BombPassConfig }
+  | { step: 'cardMatchingSetup' }
+  | { step: 'cardMatchingPlaying'; config: CardMatchingConfig }
   | { step: 'result'; scores: ParticipantScore[] };
 
 function GameSelect({ onBack }: GameSelectProps) {
@@ -102,6 +107,7 @@ function GameSelect({ onBack }: GameSelectProps) {
     else if (id === 'bossRaid') setFlow({ step: 'bossRaidSetup' });
     else if (id === 'questionBingo') setFlow({ step: 'questionBingoSetup' });
     else if (id === 'bombPass') setFlow({ step: 'bombPassSetup' });
+    else if (id === 'cardMatching') setFlow({ step: 'cardMatchingSetup' });
   }
 
   // 게임이 끝나면 학급 정보 + 게임 종류 + 결과를 묶어 세션으로 저장한 뒤 결과 화면으로 넘어간다.
@@ -262,6 +268,24 @@ function GameSelect({ onBack }: GameSelectProps) {
       <BombPassPlay
         config={flow.config}
         onFinish={(result) => handleFinish('bombPass', flow.config.classId, flow.config.className, result)}
+      />
+    );
+  }
+
+  if (flow.step === 'cardMatchingSetup') {
+    return (
+      <CardMatchingSetup
+        onStart={(config) => setFlow({ step: 'cardMatchingPlaying', config })}
+        onCancel={() => setFlow({ step: 'select' })}
+      />
+    );
+  }
+
+  if (flow.step === 'cardMatchingPlaying') {
+    return (
+      <CardMatchingPlay
+        config={flow.config}
+        onFinish={(result) => handleFinish('cardMatching', flow.config.classId, flow.config.className, result)}
       />
     );
   }
