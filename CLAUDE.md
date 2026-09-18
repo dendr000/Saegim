@@ -6,11 +6,14 @@
 
 - 사용자에게 보이는 앱 이름은 항상 **새김** (한글). 창 제목, 화면 로고, 정보 표시 모두 한글.
 - 코드·설정·파일명 등 식별자에는 **Saegim** 을 쓴다.
-  - `package.json` name: `saegim`
-  - electron-builder `productName`: `새김`, `appId`: `com.saegim.quiz`
-  - 빌드 산출물: `saegim.exe`
-  - 저장소·폴더명: `saegim`
+  - `package.json` name: `saegim` — **예외.** npm 패키지명은 대문자를 허용하지 않는
+    강제 규칙이라 이것만 소문자로 남긴다.
+  - electron-builder `productName`: `새김`, `appId`: `com.saegim.quiz` — appId는
+    역방향 도메인 표기 관례상 소문자를 유지한다(브랜드 표기와 무관한 기술 식별자).
+  - 빌드 산출물: `Saegim.exe`
+  - 저장소·폴더명: `Saegim`
 - 코드 주석과 문서는 한글 '새김'으로 쓴다.
+- 라이선스: MIT (루트 `LICENSE` 파일 참고). 저장소는 공개(public) 저장소다.
 
 ## 무엇을 만드는가
 

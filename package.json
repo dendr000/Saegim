@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "중학교 역사 수업용 퀴즈 게임",
   "main": "./out/main/index.js",
-  "author": "saegim",
+  "author": "Saegim",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",

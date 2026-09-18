@@ -6,8 +6,8 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!CLAUDE.md'
 win:
-  executableName: saegim
+  executableName: Saegim
   target: portable
 portable:
-  artifactName: saegim.exe
+  artifactName: Saegim.exe
 npmRebuild: false
